@@ -107,16 +107,6 @@ const socialLabels: Record<string, string> = {
       </div>
     </div>
 
-    <svg class="site-footer__wordmark" viewBox="0 0 1240 96" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="wordmark-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#7b9bff" stop-opacity="0.22"></stop>
-          <stop offset="1" stop-color="#4169e1" stop-opacity="0"></stop>
-        </linearGradient>
-      </defs>
-      <text x="0" y="88" textLength="1240" lengthAdjust="spacingAndGlyphs">REDOXTRONICS</text>
-    </svg>
-
     <div class="site-footer__bottom">
       <p>© {year} {site.legalName}. All rights reserved.</p>
       <p class="mono site-footer__motto">Designed &amp; developed in Tiruchirappalli, India</p>
@@ -240,27 +230,8 @@ const socialLabels: Record<string, string> = {
     border-color: var(--fg);
   }
 
-  .site-footer__wordmark {
-    width: 100%;
-    height: auto;
-    margin-top: clamp(3rem, 2rem + 5vw, 6rem);
-    margin-bottom: -1px;
-    overflow: visible;
-    user-select: none;
-  }
-
-  .site-footer__wordmark text {
-    font-family: var(--font-display);
-    font-size: 112px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    fill: url(#wordmark-fill);
-    stroke: rgb(152 175 246 / 0.22);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-
   .site-footer__bottom {
+    margin-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
