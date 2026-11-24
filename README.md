@@ -1,68 +1,44 @@
-# Redoxtronics — website
+# Redoxtronics Technologies — website
 
-Website for **Redoxtronics** ([redoxtronics.com](https://redoxtronics.com)), R&D specialists in electrochemical workstations, gas sensors and embedded systems.
+Website for **Redoxtronics Technologies** ([redoxtronics.com](https://redoxtronics.com)), R&D specialists in electrochemical workstations, gas sensors and embedded systems.
 
 ![Redoxtronics — Where redox meets electronics](public/og-image.png)
 
-- **Royal blue design.** Deep navy instrument panels, royal-blue accents and a live cyclic-voltammetry plot in the hero. Works on phones, tablets and desktops.
+- **Royal blue design** with the official Redoxtronics Technologies logo, navy instrument panels and a live cyclic-voltammetry plot in the hero. Works on phones, tablets and desktops.
 - **Pages:** Home, Products, Software downloads, About, Contact, plus a custom 404 page.
 - **Placeholders ready to fill.** Product versions and software downloads show "Coming soon" until you add the details in one data file each.
-- **Fast and static.** Built with [Astro](https://astro.build) and ships almost no JavaScript. The illustrations are SVG and need no image files.
+- **Fast and static.** Built with [Astro](https://astro.build) and ships almost no JavaScript.
 - **SEO-ready.** Page titles and descriptions, Open Graph share image, structured data (organisation, address and phone), sitemap and robots.txt.
+
+👉 **New to the project? Start with the [Build guide (Windows)](BUILD_GUIDE.md):** install the tools, download the code, run it, build it and publish it.
 
 ---
 
 ## 1. Publish on GitHub Pages (free)
 
-### Step 1: Create the repository
-
-1. Sign in to [github.com](https://github.com) and click **New repository**.
-2. Name it, for example `redoxtronics-website`. Choose **Public**. (GitHub Pages on a private repository needs a paid plan.)
-3. Click **Create repository**.
-
-### Step 2: Upload the files
-
-**Option A, in the browser (no tools needed):**
-
-1. Unzip `redoxtronics-website.zip` on your computer.
-2. On the new repository page, click **uploading an existing file**.
-3. Open the unzipped `redoxtronics-website` folder. Select **everything inside it**, including the `.github` folder, and drag it onto the GitHub page.
-4. Click **Commit changes**.
-
-> ⚠️ The `.github` folder contains the deploy workflow. On a Mac, Finder hides folders that start with a dot: press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>.</kbd> to show them. After uploading, check that the repository contains `.github/workflows/deploy.yml`.
-
-**Option B, with Git on the command line**, from inside the unzipped folder:
-
-```bash
-git init
-git add .
-git commit -m "Redoxtronics website"
-git branch -M main
-git remote add origin https://github.com/<your-username>/redoxtronics-website.git
-git push -u origin main
-```
-
-### Step 3: Turn on GitHub Pages
+The code lives at **https://github.com/raghulrajg/redoxtronics-frontend**.
 
 1. In the repository, open **Settings → Pages**.
 2. Under **Build and deployment → Source**, choose **GitHub Actions**.
-3. Open the **Actions** tab. If the workflow has not started yet, click **Deploy to GitHub Pages → Run workflow**.
-4. When it shows a green tick (about 1–2 minutes), the site is live at `https://<your-username>.github.io/redoxtronics-website/`.
+3. Open the **Actions** tab. If no run has started, click **Deploy to GitHub Pages → Run workflow**.
+4. When it shows a green tick (about 1–2 minutes), the site is live at **https://raghulrajg.github.io/redoxtronics-frontend/**.
 
-Every later change pushed to the `main` branch republishes the site automatically.
+Every change pushed to the `main` branch republishes the site automatically. The workflow is in `.github/workflows/deploy.yml`; keep the `.github` folder in the repository.
 
-### Step 4: Use your own domain (redoxtronics.com)
+> GitHub Pages is free for **public** repositories. A private repository needs a paid GitHub plan.
+
+### Use your own domain (redoxtronics.com)
 
 1. In **Settings → Pages → Custom domain**, enter `redoxtronics.com` and click **Save**.
 2. At your domain provider (where you bought redoxtronics.com), open the DNS settings and add:
 
-   | Type  | Name / Host | Value                     |
-   | ----- | ----------- | ------------------------- |
-   | A     | `@`         | `185.199.108.153`         |
-   | A     | `@`         | `185.199.109.153`         |
-   | A     | `@`         | `185.199.110.153`         |
-   | A     | `@`         | `185.199.111.153`         |
-   | CNAME | `www`       | `<your-username>.github.io` |
+   | Type  | Name / Host | Value                |
+   | ----- | ----------- | -------------------- |
+   | A     | `@`         | `185.199.108.153`    |
+   | A     | `@`         | `185.199.109.153`    |
+   | A     | `@`         | `185.199.110.153`    |
+   | A     | `@`         | `185.199.111.153`    |
+   | CNAME | `www`       | `raghulrajg.github.io` |
 
    Delete any **old** `A` or `CNAME` records for `@` or `www` that point somewhere else, such as a parking page.
 
@@ -85,7 +61,7 @@ Optional but recommended: verify the domain under your GitHub **profile Settings
 | Focus areas, applications, "how we work" steps, values | `src/data/content.ts` |
 | Page text and section order | `src/pages/*.astro` and `src/components/home/*.astro` |
 | Colours, fonts, spacing (royal-blue design tokens are at the top) | `src/styles/global.css` |
-| Logo | `src/components/ui/Logo.astro` (then run `npm run assets`, see below) |
+| Logo files (transparent PNG/WebP) | `public/brand/`. The original is in `brand/`, and the header lockup is in `src/components/ui/Logo.astro` |
 
 You can edit any file directly on github.com (open the file → ✏️ pencil icon → **Commit changes**). The site redeploys automatically.
 
@@ -140,14 +116,13 @@ The key is not stored in the code. (A static site's form sends the key from the 
 - [ ] **Review the text.** The company profile, focus areas, applications and "how we work" steps were written from a short brief. Check that they describe your work accurately.
 - [ ] **Product versions.** Both products currently list two versions (Version 1 and Version 2) as placeholders. Rename or remove versions in `src/data/products.ts` to match your real line-up.
 - [ ] **Software list.** Two software entries (workstation and gas detector) are placeholders. Edit or remove them in `src/data/software.ts`.
-- [ ] **Logo.** The ⇌ mark (the chemical equilibrium sign) is a placeholder. Replace it with your official logo if you have one.
 - [ ] **Social links.** Add LinkedIn or YouTube URLs in `src/config.ts` (empty values are hidden).
 
 ---
 
-## 5. Work on the site locally (optional)
+## 5. Work on the site locally
 
-Requires **Node.js 22.23 or newer** (see `.nvmrc`).
+See the **[Build guide (Windows)](BUILD_GUIDE.md)** for step-by-step instructions. In short, with **Node.js 22.23 or newer**:
 
 ```bash
 npm install
@@ -159,7 +134,7 @@ npm run check      # TypeScript / Astro diagnostics
 
 ### Regenerate icons and the share image
 
-The generated files in `public/` are already included. Run this only after changing the logo, colours or headline:
+The generated files in `public/` are already included. Run this only after changing the logo files in `public/brand/`, the colours or the headline:
 
 ```bash
 npm run build
@@ -174,6 +149,7 @@ Import the repository and use build command `npm run build`, output directory `d
 ### Project structure
 
 ```text
+brand/                   # Original logo file (not published)
 src/
 ├── components/
 │   ├── home/            # Home-page sections (Hero, FocusAreas, ProductsPreview, SoftwareBand, Applications)
@@ -187,7 +163,9 @@ src/
 ├── pages/               # One file per page
 ├── scripts/reveal.ts    # Scroll-reveal animation
 └── styles/global.css    # Design system (royal-blue tokens)
-public/                  # Favicons, share image, web manifest
+public/
+├── brand/               # Logo and emblem with transparent backgrounds
+└── …                    # Favicons, app icons, share image, web manifest
 scripts/generate-assets.cjs    # Regenerates favicons + share image (optional)
 ```
 

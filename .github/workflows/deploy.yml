@@ -1,0 +1,71 @@
+# Builds the site and publishes it to GitHub Pages on every push to main.
+# One-time setup: repository Settings → Pages → Build and deployment → Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run check
+
+      - name: Build
+        run: |
+          if [ -n "$PUBLIC_WEB3FORMS_KEY" ]; then
+            echo "Contact form: Web3Forms key configured"
+          else
+            echo "::notice::No WEB3FORMS_KEY secret found, so the contact form opens the visitor's email app (see README)."
+          fi
+          npm run build
+        env:
+          # Works for project sites (https://<user>.github.io/<repo>/) and custom domains alike.
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # Kept out of the repository: repository secret (or variable) named WEB3FORMS_KEY.
+          PUBLIC_WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY || vars.WEB3FORMS_KEY }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
