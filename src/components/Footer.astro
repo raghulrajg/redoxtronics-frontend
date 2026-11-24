@@ -1,5 +1,4 @@
 ---
-import Logo from '@/components/ui/Logo.astro';
 import Icon from '@/components/ui/Icon.astro';
 import SocialIcon from '@/components/ui/SocialIcon.astro';
 import { site, phoneHref, addressLines, mapsUrl } from '@/config';
@@ -22,8 +21,15 @@ const socialLabels: Record<string, string> = {
   <div class="container">
     <div class="site-footer__grid">
       <div class="site-footer__brand">
-        <a href={href('/')} class="site-footer__logo" aria-label={`${site.name} home`}>
-          <Logo size={40} />
+        <a href={href('/')} class="site-footer__logo">
+          <img
+            src={href('/brand/redoxtronics-logo.webp')}
+            width="200"
+            height="184"
+            alt={`${site.legalName} home`}
+            loading="lazy"
+            decoding="async"
+          />
         </a>
         <p class="site-footer__about">
           R&amp;D specialists in electrochemical workstations, gas sensors and embedded systems.
@@ -112,7 +118,7 @@ const socialLabels: Record<string, string> = {
     </svg>
 
     <div class="site-footer__bottom">
-      <p>© {year} {site.name}. All rights reserved.</p>
+      <p>© {year} {site.legalName}. All rights reserved.</p>
       <p class="mono site-footer__motto">Designed &amp; developed in Tiruchirappalli, India</p>
       <a href="#main" class="site-footer__top">
         Back to top

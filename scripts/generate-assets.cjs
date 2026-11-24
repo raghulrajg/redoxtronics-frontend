@@ -1,5 +1,6 @@
 /**
- * Regenerates the favicon set and the Open Graph share image in /public.
+ * Regenerates the favicon set and the Open Graph share image in /public,
+ * from the transparent logo files in public/brand/.
  *
  * Optional — the generated files are committed, so you only need this after
  * changing the logo, colours or headline.
@@ -14,29 +15,14 @@ const { chromium } = require('playwright');
 
 const root = path.resolve(__dirname, '..');
 const pub = path.join(root, 'public');
+const dataUrl = (file, type) => `data:${type};base64,${fs.readFileSync(file).toString('base64')}`;
 // Fonts are inlined as data: URLs (pages opened with setContent can't read file:// URLs).
 const font = (pkg, file) =>
-  `data:font/woff2;base64,${fs
-    .readFileSync(path.join(root, 'node_modules/@fontsource-variable', pkg, 'files', file))
-    .toString('base64')}`;
+  dataUrl(path.join(root, 'node_modules/@fontsource-variable', pkg, 'files', file), 'font/woff2');
 
-const ARROWS = `
-  <path d="M8 12.5h15.5l-4.6-4.2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M24 19.5H8.5l4.6 4.2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
-const GRADIENT = `
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#6188f3"/><stop offset="0.45" stop-color="#4169e1"/><stop offset="1" stop-color="#2642a8"/>
-  </linearGradient></defs>`;
-
-/** Rounded tile (favicon, logo). */
-const MARK = `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">${GRADIENT}
-  <rect width="32" height="32" rx="9" fill="url(#g)"/>${ARROWS}
-</svg>`;
-
-/** Full-bleed square (app icons: the platform applies its own rounding). */
-const SQUARE = (inset = 0) => `<svg viewBox="${-inset} ${-inset} ${32 + 2 * inset} ${32 + 2 * inset}" xmlns="http://www.w3.org/2000/svg">${GRADIENT}
-  <rect x="${-inset}" y="${-inset}" width="${32 + 2 * inset}" height="${32 + 2 * inset}" fill="url(#g)"/>${ARROWS}
-</svg>`;
+/** The DNA + circuit emblem, transparent (cut from the official logo). */
+const MARK = dataUrl(path.join(pub, 'brand', 'redoxtronics-mark.png'), 'image/png');
+const NAVY = '#071233';
 
 const fontFaces = `
 @font-face { font-family: 'Sora'; src: url(${font('sora', 'sora-latin-wght-normal.woff2')}) format('woff2'); font-weight: 100 800; }
@@ -44,12 +30,21 @@ const fontFaces = `
 @font-face { font-family: 'JetBrains Mono'; src: url(${font('jetbrains-mono', 'jetbrains-mono-latin-wght-normal.woff2')}) format('woff2'); font-weight: 100 800; }
 `;
 
-function iconPage(size, svg) {
+/**
+ * An icon: the emblem centred on navy.
+ * `scale` is the emblem height as a share of the icon; `radius` rounds the tile (0 = full-bleed square).
+ */
+function iconPage(size, { scale = 0.74, radius = 0 } = {}) {
   return `<!doctype html><html><head><style>
     html, body { margin: 0; width: ${size}px; height: ${size}px; background: transparent; }
-    svg { display: block; width: ${size}px; height: ${size}px; }
-  </style></head><body>${svg}</body></html>`;
+    .tile { width: ${size}px; height: ${size}px; display: grid; place-items: center; background: ${NAVY};
+      background-image: radial-gradient(80% 80% at 50% 35%, rgb(65 105 225 / .45), transparent 70%);
+      border-radius: ${radius * size}px; }
+    img { height: ${Math.round(size * scale)}px; width: auto; }
+  </style></head><body><div class="tile"><img src="${MARK}"></div></body></html>`;
 }
+
+const LOCKUP = `<div class="logo"><img src="${MARK}"><div class="type"><div class="name"><span class="r">REDOX</span><span class="b">TRONICS</span></div><div class="sub">TECHNOLOGIES</div></div></div>`;
 
 function ogPage(panelSvg) {
   return `<!doctype html><html><head><style>
@@ -59,16 +54,17 @@ function ogPage(panelSvg) {
     body { width: 1200px; height: 630px; overflow: hidden; color: #f4f7ff; font-family: Inter, sans-serif; position: relative;
       background: radial-gradient(60% 80% at 80% 10%, rgb(65 105 225 / .45), transparent 62%), linear-gradient(180deg, #081538, #071233 50%, #050d27); }
     .grid { position: absolute; inset: 0; background-image: linear-gradient(rgb(255 255 255 / .045) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .045) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(90% 90% at 75% 40%, #000 30%, transparent 80%); }
-    .wrap { position: absolute; inset: 0; display: grid; grid-template-columns: 560px 1fr; padding: 56px 56px 52px 64px; gap: 40px; }
+    .wrap { position: absolute; inset: 0; display: grid; grid-template-columns: 560px 1fr; padding: 48px 56px 52px 64px; gap: 40px; }
     .left { display: flex; flex-direction: column; }
     .logo { display: flex; align-items: center; gap: 16px; }
-    .logo svg { width: 52px; height: 52px; border-radius: 15px; box-shadow: 0 10px 24px -8px rgb(65 105 225 / .9); }
-    .name { font-family: Sora; font-weight: 700; font-size: 30px; letter-spacing: -.02em; line-height: 1; }
-    .name b { font-weight: 500; color: #98aff6; }
-    .sub { margin-top: 8px; font-family: 'JetBrains Mono'; font-size: 12px; letter-spacing: .2em; color: #7b8cb8; text-transform: uppercase; }
-    h1 { margin-top: 64px; font-family: Sora; font-weight: 650; font-size: 70px; line-height: 1.02; letter-spacing: -.035em; }
+    .logo img { height: 78px; width: auto; filter: drop-shadow(0 8px 18px rgb(65 105 225 / .45)); }
+    .type { display: grid; justify-items: center; line-height: 1; }
+    .name { font-family: Sora; font-weight: 700; font-size: 34px; letter-spacing: .005em; }
+    .name .r { color: #e2312e; } .name .b { color: #3390d6; }
+    .sub { margin-top: 9px; padding-left: .3em; font-family: Sora; font-weight: 600; font-size: 16px; letter-spacing: .3em; color: #f4f7ff; }
+    h1 { margin-top: 50px; font-family: Sora; font-weight: 650; font-size: 68px; line-height: 1.02; letter-spacing: -.035em; }
     h1 span { background: linear-gradient(100deg, #b9c9ff 0%, #7b9bff 38%, #4169e1 68%, #5ad1ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    p.tag { margin-top: 24px; font-size: 23px; color: #c7d2ee; line-height: 1.4; max-width: 30ch; }
+    p.tag { margin-top: 22px; font-size: 23px; color: #c7d2ee; line-height: 1.4; max-width: 30ch; }
     .chips { margin-top: auto; display: flex; flex-wrap: wrap; gap: 10px; }
     .chips span { padding: 7px 12px; border: 1px solid rgb(255 255 255 / .17); border-radius: 999px; font-family: 'JetBrains Mono'; font-size: 13px; letter-spacing: .02em; color: #c7d2ee; background: rgb(255 255 255 / .04); }
     .panel { align-self: center; }
@@ -82,7 +78,7 @@ function ogPage(panelSvg) {
     <div class="grid"></div>
     <div class="wrap">
       <div class="left">
-        <div class="logo">${MARK}<div><div class="name">Redox<b>tronics</b></div><div class="sub">Electrochemical R&amp;D</div></div></div>
+        ${LOCKUP}
         <h1>Where <span>redox</span> meets electronics.</h1>
         <p class="tag">R&amp;D in electrochemical workstations, gas sensors &amp; embedded systems</p>
         <div class="chips"><span>Electrochemical workstations</span><span>Gas sensors</span><span>Embedded systems</span></div>
@@ -92,9 +88,9 @@ function ogPage(panelSvg) {
   </body></html>`;
 }
 
-async function shot(browser, size, svg, file) {
+async function shot(browser, size, opts, file) {
   const page = await browser.newPage({ viewport: { width: size, height: size } });
-  await page.setContent(iconPage(size, svg));
+  await page.setContent(iconPage(size, opts), { waitUntil: 'load' });
   const data = await page.screenshot({ omitBackground: true, ...(file ? { path: file } : {}) });
   await page.close();
   return data;
@@ -103,16 +99,15 @@ async function shot(browser, size, svg, file) {
 (async () => {
   const browser = await chromium.launch();
 
-  // Favicons and app icons
-  fs.writeFileSync(path.join(pub, 'favicon.svg'), MARK.trim() + '\n');
-  await shot(browser, 180, SQUARE(), path.join(pub, 'apple-touch-icon.png'));
-  await shot(browser, 192, SQUARE(), path.join(pub, 'icon-192.png'));
-  await shot(browser, 512, SQUARE(), path.join(pub, 'icon-512.png'));
-  await shot(browser, 512, SQUARE(4), path.join(pub, 'icon-maskable-512.png'));
+  // App icons: full-bleed squares (each platform applies its own rounding).
+  await shot(browser, 180, { scale: 0.74 }, path.join(pub, 'apple-touch-icon.png'));
+  await shot(browser, 192, { scale: 0.74 }, path.join(pub, 'icon-192.png'));
+  await shot(browser, 512, { scale: 0.74 }, path.join(pub, 'icon-512.png'));
+  await shot(browser, 512, { scale: 0.56 }, path.join(pub, 'icon-maskable-512.png'));
 
-  // favicon.ico — PNG-compressed entries (16, 32, 48 px), supported by all current browsers.
+  // favicon.ico — rounded tiles as PNG-compressed entries (16, 32, 48 px).
   const pngs = [];
-  for (const size of [16, 32, 48]) pngs.push({ size, data: await shot(browser, size, MARK) });
+  for (const size of [16, 32, 48]) pngs.push({ size, data: await shot(browser, size, { scale: 0.84, radius: 0.22 }) });
   const header = Buffer.alloc(6 + 16 * pngs.length);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2);

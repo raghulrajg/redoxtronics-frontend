@@ -1,51 +1,45 @@
 ---
 /**
- * Redoxtronics logo.
- * Mark: the chemical equilibrium sign (⇌), the symbol of a reversible redox
- * reaction, in a royal-blue tile. Wordmark: "Redox" + "tronics".
+ * Redoxtronics Technologies logo, built from the official logo
+ * (original file: brand/redoxtronics-logo-original.webp):
+ * - the DNA + circuit emblem (public/brand/redoxtronics-mark.webp, transparent)
+ * - the two-colour wordmark "REDOX" (red) + "TRONICS" (blue) over "TECHNOLOGIES".
  *
- * This is a placeholder brand mark. To use your official logo, replace the
- * <svg> below (and run `npm run assets` to refresh the favicons).
+ * The full logo, with its frame, is shown in the footer
+ * (public/brand/redoxtronics-logo.webp).
  */
+import { site } from '@/config';
+import { href } from '@/lib/url';
+
 interface Props {
   class?: string;
   showWordmark?: boolean;
+  /** Height of the emblem in px. */
   size?: number;
 }
-const { class: className, showWordmark = true, size = 36 } = Astro.props;
+const { class: className, showWordmark = true, size = 46 } = Astro.props;
+
+/** Width / height of public/brand/redoxtronics-mark.webp. */
+const MARK_RATIO = 420 / 520;
 ---
 
 <span class:list={['logo', className]}>
-  <svg
+  <img
     class="logo__mark"
-    width={size}
+    src={href('/brand/redoxtronics-mark.webp')}
+    width={Math.round(size * MARK_RATIO)}
     height={size}
-    viewBox="0 0 32 32"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <path
-      d="M8 12.5h15.5l-4.6-4.2"
-      fill="none"
-      stroke="#fff"
-      stroke-width="2.4"
-      stroke-linecap="round"
-      stroke-linejoin="round"></path>
-    <path
-      d="M24 19.5H8.5l4.6 4.2"
-      fill="none"
-      stroke="#fff"
-      stroke-width="2.4"
-      stroke-linecap="round"
-      stroke-linejoin="round"></path>
-  </svg>
+    alt={showWordmark ? '' : site.legalName}
+    decoding="async"
+  />
   {
     showWordmark && (
       <span class="logo__type">
         <span class="logo__name">
-          Redox<span class="logo__name-b">tronics</span>
+          <span class="logo__redox">REDOX</span>
+          <span class="logo__tronics">TRONICS</span>
         </span>
-        <span class="logo__sub">Electrochemical R&amp;D</span>
+        <span class="logo__sub">TECHNOLOGIES</span>
       </span>
     )
   }
@@ -55,43 +49,45 @@ const { class: className, showWordmark = true, size = 36 } = Astro.props;
   .logo {
     display: inline-flex;
     align-items: center;
-    gap: 0.7rem;
+    gap: 0.6rem;
     color: var(--fg);
   }
 
   .logo__mark {
     flex: none;
-    border-radius: 28%;
-    background: linear-gradient(145deg, #6188f3 0%, var(--royal-500) 45%, var(--royal-700) 100%);
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.22),
-      0 8px 18px -8px rgb(65 105 225 / 0.9);
+    filter: drop-shadow(0 6px 14px rgb(65 105 225 / 0.35));
   }
 
   .logo__type {
     display: grid;
+    justify-items: center;
     line-height: 1;
   }
 
   .logo__name {
+    display: flex;
     font-family: var(--font-display);
     font-size: 1.2rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.005em;
   }
 
-  .logo__name-b {
-    font-weight: 500;
-    color: var(--accent-text);
+  /* Brand colours from the logo, brightened slightly for the dark header. */
+  .logo__redox {
+    color: #e2312e;
+  }
+
+  .logo__tronics {
+    color: #3390d6;
   }
 
   .logo__sub {
     margin-top: 0.32rem;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--fg-subtle);
+    padding-left: 0.3em;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: #f4f7ff;
   }
 </style>

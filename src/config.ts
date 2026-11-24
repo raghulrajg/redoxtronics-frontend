@@ -7,7 +7,10 @@
  */
 
 export interface SiteConfig {
+  /** Short name, used in page titles. */
   name: string;
+  /** Full company name, as on the logo. */
+  legalName: string;
   tagline: string;
   description: string;
   /** Main contact address: shown across the site and used for enquiries. */
@@ -31,6 +34,7 @@ export interface SiteConfig {
 
 export const site: SiteConfig = {
   name: 'Redoxtronics',
+  legalName: 'Redoxtronics Technologies',
   tagline: 'R&D in electrochemical workstations, gas sensors & embedded systems',
   description:
     'Redoxtronics is an R&D company specialising in electrochemical workstations, gas sensors and embedded systems. We develop portable electrochemical workstations, gas sensor detectors and the software that runs them.',
