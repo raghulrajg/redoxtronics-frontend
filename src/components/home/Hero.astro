@@ -1,0 +1,197 @@
+---
+import InstrumentPanel from '@/components/illustrations/InstrumentPanel.astro';
+import FieldLines from '@/components/ui/FieldLines.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { focusAreas } from '@/data/content';
+import { locationLabel } from '@/config';
+import { href } from '@/lib/url';
+---
+
+<section class="hero theme-dark" aria-labelledby="hero-title">
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__grid bg-grid"></div>
+    <FieldLines class="hero__fields" cx={980} cy={200} rings={11} base={36} gap={38} seed={11} highlight={4} />
+    <div class="hero__glow"></div>
+  </div>
+
+  <div class="container hero__layout">
+    <div class="hero__copy">
+      <p class="chip hero__status" data-reveal>
+        <span class="led" aria-hidden="true"></span>
+        Electrochemical R&amp;D · {locationLabel}
+      </p>
+      <h1 id="hero-title" class="display hero__title" data-reveal style="--reveal-delay: 60ms">
+        Where <span class="grad">redox</span> meets electronics.
+      </h1>
+      <p class="lead hero__lead" data-reveal style="--reveal-delay: 120ms">
+        Redoxtronics is an R&amp;D company specialising in <strong>electrochemical workstations</strong>, <strong
+          >gas sensors</strong
+        > and <strong>embedded systems</strong>. We develop portable electrochemical instruments, gas sensor
+        detectors and the software that runs them.
+      </p>
+      <div class="btn-row" data-reveal style="--reveal-delay: 180ms">
+        <a class="btn btn--primary" href={href('/products/')}>
+          Explore products
+          <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+        </a>
+        <a class="btn btn--secondary" href={href('/contact/')}>Contact sales</a>
+      </div>
+
+      <div class="hero__areas" data-reveal style="--reveal-delay: 240ms">
+        <span class="hero__areas-label mono">Focus areas</span>
+        <ul role="list">
+          {
+            focusAreas.map((a) => (
+              <li>
+                <Icon name={a.icon} class="icon" />
+                {a.title}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="hero__visual" data-reveal style="--reveal-delay: 160ms">
+      <InstrumentPanel />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 1rem + 5vw, 5.5rem));
+    padding-bottom: clamp(3.5rem, 2rem + 5vw, 6.5rem);
+    background:
+      radial-gradient(60% 70% at 78% 18%, rgb(65 105 225 / 0.42), transparent 62%),
+      radial-gradient(45% 55% at 0% 100%, rgb(90 209 255 / 0.09), transparent 70%),
+      linear-gradient(180deg, #081538 0%, var(--navy-900) 45%, #050d27 100%);
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero__grid {
+    position: absolute;
+    inset: 0;
+    mask-image: radial-gradient(120% 90% at 70% 30%, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(120% 90% at 70% 30%, #000 30%, transparent 75%);
+  }
+
+  .hero :global(.hero__fields) {
+    color: rgb(159 176 216 / 0.11);
+  }
+
+  .hero__glow {
+    position: absolute;
+    width: 820px;
+    height: 820px;
+    right: -220px;
+    top: -260px;
+    background: radial-gradient(closest-side, rgb(106 138 239 / 0.22), transparent);
+  }
+
+  .hero__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2.5rem, 1rem + 4vw, 5rem);
+  }
+
+  .hero__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .hero__status {
+    white-space: normal;
+  }
+
+  .hero__title {
+    max-width: 12ch;
+  }
+
+  .hero__lead strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .hero__areas {
+    display: grid;
+    gap: 0.7rem;
+    width: 100%;
+    margin-top: var(--space-xs);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--border);
+  }
+
+  .hero__areas-label {
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .hero__areas ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .hero__areas li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.04);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .hero__areas :global(.icon) {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--accent-text);
+  }
+
+  .hero__visual {
+    position: relative;
+  }
+
+  .hero__visual::before {
+    content: '';
+    position: absolute;
+    inset: 8% 6% -6%;
+    z-index: -1;
+    border-radius: 40px;
+    background: radial-gradient(closest-side, rgb(65 105 225 / 0.55), transparent);
+    filter: blur(30px);
+  }
+
+  .hero__visual :global(.ip) {
+    box-shadow: 0 50px 100px -40px rgb(0 0 0 / 0.9);
+  }
+
+  @media (max-width: 1080px) {
+    .hero__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .hero__title {
+      max-width: 14ch;
+    }
+
+    .hero__visual {
+      max-width: 680px;
+    }
+  }
+</style>

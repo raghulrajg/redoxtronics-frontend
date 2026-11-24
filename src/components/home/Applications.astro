@@ -1,0 +1,85 @@
+---
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { applications } from '@/data/content';
+
+interface Props {
+  index?: string;
+}
+const { index = '04' } = Astro.props;
+---
+
+<section class="section theme-light section--white apps" aria-labelledby="apps-title">
+  <div class="container">
+    <SectionHeader
+      id="apps-title"
+      index={index}
+      eyebrow="Applications"
+      title="Built for labs, industry <em>and the field.</em>"
+      lead="Electrochemical measurement and gas sensing are used wherever chemistry needs to be measured reliably."
+      align="split"
+    />
+    <ul role="list" class="apps__grid" data-reveal-stagger="60">
+      {
+        applications.map((a) => (
+          <li class="apps__item" data-reveal>
+            <span class="icon-tile icon-tile--soft">
+              <Icon name={a.icon} />
+            </span>
+            <div>
+              <h3 class="apps__title">{a.title}</h3>
+              <p class="apps__text">{a.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .apps__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+
+  .apps__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-s);
+    padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.25s;
+  }
+
+  .apps__item:hover {
+    background: var(--mist-50);
+  }
+
+  .apps__title {
+    margin-bottom: 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .apps__text {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 960px) {
+    .apps__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .apps__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

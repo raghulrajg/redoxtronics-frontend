@@ -1,0 +1,439 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/ui/PageHero.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import Icon from '@/components/ui/Icon.astro';
+import WorkstationArt from '@/components/illustrations/WorkstationArt.astro';
+import GasDetectorArt from '@/components/illustrations/GasDetectorArt.astro';
+import { site } from '@/config';
+import { products, isComingSoon } from '@/data/products';
+import { breadcrumbSchema } from '@/lib/schema';
+import { href, mailto } from '@/lib/url';
+
+const schema = [
+  breadcrumbSchema(Astro.site, [{ label: 'Products', href: '/products/' }]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${site.name} products`,
+    hasPart: products.map((p) => ({
+      '@type': 'Product',
+      name: p.name,
+      description: p.description,
+      brand: { '@type': 'Brand', name: site.name },
+      url: new URL(href(`/products/#${p.slug}`), Astro.site).toString(),
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="Products"
+  description="Portable electrochemical workstations and gas sensor detectors developed by Redoxtronics. Specifications, photos and datasheets coming soon."
+  schema={schema}
+>
+  <PageHero
+    eyebrow="Products"
+    title="Instruments for <em>electrochemistry and gas sensing.</em>"
+    lead="Redoxtronics develops portable electrochemical workstations and gas sensor detectors. Two versions of each have been developed. Full specifications, photos and datasheets will be published here soon."
+    crumbs={[{ label: 'Products' }]}
+    seed={4}
+  >
+    {
+      products.map((p) => (
+        <a class="btn btn--secondary" href={`#${p.slug}`}>
+          <Icon name={p.icon} strokeWidth={2} />
+          {p.name}
+        </a>
+      ))
+    }
+  </PageHero>
+
+  {
+    products.map((p, i) => {
+      const pending = p.versions.filter(isComingSoon).length;
+      return (
+        <section
+          class:list={['section theme-light product', { 'section--white': i % 2 === 1 }]}
+          id={p.slug}
+          aria-labelledby={`${p.slug}-title`}
+        >
+          <div class="container">
+            <div class:list={['product__layout', { 'product__layout--flip': i % 2 === 1 }]}>
+              <div class="product__copy">
+                <p class="eyebrow" data-reveal>
+                  <span class="num">0{i + 1}</span> Product
+                </p>
+                <h2 id={`${p.slug}-title`} class="h2" data-reveal style="--reveal-delay: 60ms">
+                  {p.name}
+                </h2>
+                <p class="lead" data-reveal style="--reveal-delay: 100ms">
+                  {p.description}
+                </p>
+                <div class="product__badges" data-reveal style="--reveal-delay: 140ms">
+                  <span class="badge">
+                    <Icon name="layers" strokeWidth={2} />
+                    {p.versions.length} versions developed
+                  </span>
+                  {pending > 0 && (
+                    <span class="badge badge--soon">
+                      <Icon name="clock" strokeWidth={2} />
+                      Specifications coming soon
+                    </span>
+                  )}
+                </div>
+                <div class="product__uses" data-reveal style="--reveal-delay: 180ms">
+                  <h3 class="product__subhead mono">Built for</h3>
+                  <ul role="list" class="check-list">
+                    {p.uses.map((u) => (
+                      <li>{u}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="btn-row" data-reveal style="--reveal-delay: 220ms">
+                  <a class="btn btn--primary" href={href(`/contact/?interest=${p.slug}`)}>
+                    Request details
+                    <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+                  </a>
+                  <a class="btn btn--secondary" href={mailto(site.email, `Enquiry: ${p.name}`)}>
+                    <Icon name="mail" strokeWidth={2} />
+                    Email sales
+                  </a>
+                </div>
+              </div>
+              <div class="product__visual" data-reveal style="--reveal-delay: 120ms">
+                {p.illustration === 'workstation' ? <WorkstationArt /> : <GasDetectorArt />}
+              </div>
+            </div>
+
+            <div class="versions">
+              <h3 class="versions__title" data-reveal>
+                <span class="mono">Versions</span>
+              </h3>
+              <div class="versions__grid" data-reveal-stagger="90">
+                {p.versions.map((v, k) => {
+                  const soon = isComingSoon(v);
+                  return (
+                    <article class="version card" data-reveal>
+                      <header class="version__head">
+                        <span class="version__tag mono">V{k + 1}</span>
+                        <h4 class="version__name">{v.name}</h4>
+                        {soon ? (
+                          <span class="badge badge--soon">Coming soon</span>
+                        ) : (
+                          <span class="badge">
+                            <Icon name="check" strokeWidth={2.5} />
+                            Details
+                          </span>
+                        )}
+                      </header>
+
+                      {soon ? (
+                        <div class="version__placeholder">
+                          <Icon name="hourglass" class="icon" />
+                          <p>
+                            <strong>Details coming soon.</strong> Specifications, photos and the datasheet for
+                            this version will be added here.
+                          </p>
+                        </div>
+                      ) : (
+                        <div class="version__details">
+                          {v.image && (
+                            <img
+                              class="version__img"
+                              src={href(v.image)}
+                              alt={`${p.name}, ${v.name}`}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          )}
+                          {v.summary && <p>{v.summary}</p>}
+                          {v.specs.length > 0 && (
+                            <dl class="specs">
+                              {v.specs.map((s) => (
+                                <div class="specs__row">
+                                  <dt>{s.label}</dt>
+                                  <dd>{s.value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                          )}
+                          {v.datasheet && (
+                            <a class="btn btn--secondary btn--sm" href={href(v.datasheet)}>
+                              <Icon name="file-text" strokeWidth={2} />
+                              Datasheet
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      <a class="text-link version__ask" href={mailto(site.email, `Enquiry: ${p.name} (${v.name})`)}>
+                        Ask about {v.name}
+                        <Icon name="arrow-right" strokeWidth={2} />
+                      </a>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    })
+  }
+
+  <section
+    class:list={[
+      'section section--tight theme-light software-note',
+      { 'section--white': (products.length - 1) % 2 === 1 },
+    ]}
+    aria-labelledby="sw-note-title"
+  >
+    <div class="container">
+      <div class="sw-note card" data-reveal>
+        <span class="icon-tile">
+          <Icon name="monitor-down" />
+        </span>
+        <div class="sw-note__copy">
+          <h2 id="sw-note-title" class="h4">Looking for the software?</h2>
+          <p class="muted">Software for our instruments will be available from the software downloads page.</p>
+        </div>
+        <a class="btn btn--secondary" href={href('/software/')}>
+          Software downloads
+          <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    title="Want to know more about our products?"
+    text="Specifications are on the way. Contact our team for product details, availability and pricing for your application."
+  />
+</BaseLayout>
+
+<style>
+  .product__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: center;
+    gap: clamp(2.5rem, 1rem + 5vw, 6rem);
+  }
+
+  .product__layout--flip .product__copy {
+    order: 2;
+  }
+
+  .product__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .product__copy .h2 {
+    max-width: 16ch;
+  }
+
+  .product__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .product__uses {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .product__subhead {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .product__visual :global(.ill) {
+    border-radius: var(--radius-l);
+    box-shadow: 0 40px 80px -40px rgb(28 47 107 / 0.6);
+  }
+
+  /* — Versions — */
+  .versions {
+    margin-top: clamp(3rem, 2rem + 3vw, 4.5rem);
+  }
+
+  .versions__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    margin-bottom: var(--space-m);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .versions__title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  .versions__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-m);
+  }
+
+  .version {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  }
+
+  .version__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .version__tag {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, var(--royal-400), var(--royal-600));
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .version__name {
+    flex: 1;
+    font-size: var(--step-1);
+    font-weight: 650;
+    letter-spacing: -0.015em;
+  }
+
+  .version__placeholder {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-s);
+    align-items: start;
+    padding: var(--space-m);
+    border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: var(--radius-m);
+    background:
+      repeating-linear-gradient(
+        135deg,
+        transparent 0 10px,
+        rgb(65 105 225 / 0.035) 10px 20px
+      ),
+      var(--surface-2);
+  }
+
+  .version__placeholder :global(.icon) {
+    color: var(--accent-text);
+    margin-top: 0.15rem;
+  }
+
+  .version__placeholder p {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+
+  .version__placeholder strong {
+    color: var(--fg);
+  }
+
+  .version__details {
+    display: grid;
+    gap: var(--space-s);
+    justify-items: start;
+  }
+
+  .version__img {
+    width: 100%;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--border);
+  }
+
+  .specs {
+    display: grid;
+    width: 100%;
+    border-top: 1px solid var(--border);
+  }
+
+  .specs__row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--space-s);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+
+  .specs__row dt {
+    color: var(--fg-muted);
+  }
+
+  .specs__row dd {
+    font-weight: 600;
+  }
+
+  .version__ask {
+    margin-top: auto;
+    align-self: flex-start;
+    font-size: 0.95rem;
+  }
+
+  /* — Software note — */
+  .software-note {
+    padding-top: 0;
+  }
+
+  .sw-note {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-m);
+    padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+  }
+
+  .sw-note__copy {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  @media (max-width: 960px) {
+    .product__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .product__layout--flip .product__copy {
+      order: 0;
+    }
+
+    .product__visual {
+      max-width: 640px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .versions__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .sw-note {
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+/**
+ * Inline SVG icon from Lucide (ISC licence), rendered at build time.
+ * Usage: <Icon name="cpu" class="icon" />
+ */
+import { icons, type IconName } from '@/lib/icons';
+
+interface Props {
+  name: IconName;
+  class?: string;
+  size?: number;
+  strokeWidth?: number;
+  label?: string;
+}
+
+const { name, class: className, size = 24, strokeWidth = 1.75, label } = Astro.props;
+const raw = icons[name];
+if (!raw) throw new Error(`Unknown icon: ${name}`);
+const inner = raw
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/^[\s\S]*?<svg[^>]*>/, '')
+  .replace(/<\/svg>\s*$/, '')
+  .trim();
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={className}
+  aria-hidden={label ? undefined : 'true'}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  focusable="false"
+  set:html={inner}
+/>

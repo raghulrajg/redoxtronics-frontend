@@ -1,0 +1,134 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { href } from '@/lib/url';
+
+// A flat, noisy baseline: the instrument is connected, but there is no signal.
+const noise = Array.from({ length: 61 }, (_, k) => {
+  const x = 30 + k * 7;
+  const y = 120 + 1.8 * Math.sin(k * 2.3) + 1.2 * Math.sin(k * 5.1 + 1.3);
+  return `${k ? 'L' : 'M'}${x} ${y.toFixed(1)}`;
+}).join('');
+---
+
+<BaseLayout title="Page not found" description="The page you were looking for doesn’t exist." noindex>
+  <section class="nf theme-dark" aria-labelledby="nf-title">
+    <div class="nf__bg bg-grid" aria-hidden="true"></div>
+    <div class="container nf__layout">
+      <div class="nf__copy">
+        <p class="eyebrow">Error 404</p>
+        <h1 id="nf-title" class="display nf__title">No signal <span class="grad">detected.</span></h1>
+        <p class="lead">
+          We measured carefully, but this page isn’t responding. It may have moved, or the link may be
+          mistyped.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={href('/')}>
+            Back to home
+            <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+          </a>
+          <a class="btn btn--secondary" href={href('/products/')}>View products</a>
+        </div>
+      </div>
+
+      <div class="nf__panel" aria-hidden="true">
+        <div class="nf__bar mono">
+          <span>CH-404 · Chronoamperometry</span>
+          <span class="nf__fail">No signal</span>
+        </div>
+        <svg viewBox="0 0 480 240" class="nf__plot">
+          <g stroke="rgb(255 255 255 / 0.06)">
+            {[40, 80, 160, 200].map((y) => <line x1="30" y1={y} x2="450" y2={y} />)}
+            {[100, 170, 240, 310, 380].map((x) => <line x1={x} y1="20" x2={x} y2="220" />)}
+          </g>
+          <rect x="30" y="20" width="420" height="200" fill="none" stroke="rgb(255 255 255 / 0.14)"></rect>
+          <path d={noise} fill="none" stroke="#5ad1ff" stroke-width="2" stroke-linejoin="round"></path>
+          <text x="440" y="110" text-anchor="end" class="ill__label ill__label--cyan">I = 0.00 µA</text>
+          <text x="30" y="236" class="ill__label ill__label--dim">t / s</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    display: grid;
+    align-items: center;
+    padding-block: calc(var(--header-h) + 3rem) 4rem;
+    background:
+      radial-gradient(60% 70% at 80% 20%, rgb(65 105 225 / 0.35), transparent 65%),
+      var(--navy-900);
+  }
+
+  .nf__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    mask-image: radial-gradient(80% 80% at 70% 40%, #000, transparent 75%);
+    -webkit-mask-image: radial-gradient(80% 80% at 70% 40%, #000, transparent 75%);
+  }
+
+  .nf__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+  }
+
+  .nf__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .nf__title {
+    max-width: 10ch;
+  }
+
+  .nf__panel {
+    border: 1px solid rgb(152 175 246 / 0.28);
+    border-radius: var(--radius-l);
+    background: linear-gradient(180deg, #10235a, #081436);
+    overflow: hidden;
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.85);
+  }
+
+  .nf__bar {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  .nf__fail {
+    color: #ff8a8a;
+    animation: nf-blink 1.4s steps(2, jump-none) infinite;
+  }
+
+  .nf__plot {
+    width: 100%;
+    height: auto;
+    padding: 0.75rem;
+  }
+
+  @keyframes nf-blink {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .nf__layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,327 @@
+---
+import Logo from '@/components/ui/Logo.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { nav, site, phoneHref } from '@/config';
+import { href, isActive } from '@/lib/url';
+
+const path = Astro.url.pathname;
+---
+
+<header class="site-header theme-dark" data-header>
+  <div class="container site-header__inner">
+    <a href={href('/')} class="site-header__brand" aria-label={`${site.name} home`}>
+      <Logo />
+    </a>
+
+    <nav class="site-nav" aria-label="Main">
+      <ul role="list" class="site-nav__list">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                class="site-nav__link"
+                href={href(item.path)}
+                aria-current={isActive(path, item.path) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="btn btn--primary btn--sm site-header__cta" href={href('/contact/')}>
+        Contact sales
+        <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+      </a>
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <span class="visually-hidden">Menu</span>
+        <span class="menu-toggle__bars" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu>
+    <nav class="container mobile-menu__inner" aria-label="Mobile">
+      <ul role="list" class="mobile-menu__main">
+        <li><a href={href('/')}>Home</a></li>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={href(item.path)} aria-current={isActive(path, item.path) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mobile-menu__foot">
+        <a class="btn btn--primary" href={href('/contact/')}>
+          Contact sales
+          <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+        </a>
+        <div class="mobile-menu__contact mono">
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+          {site.phone && <a href={phoneHref}>{site.phone}</a>}
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+
+  if (header) {
+    // — Solid background once the page scrolls —
+    const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // — Mobile menu —
+    const toggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+    const panel = header.querySelector<HTMLElement>('[data-mobile-menu]');
+
+    const setMenu = (open: boolean) => {
+      if (!toggle || !panel) return;
+      header.toggleAttribute('data-menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      if (open) panel.querySelector<HTMLElement>('a')?.focus({ preventScroll: true });
+    };
+
+    if (toggle && panel) {
+      toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+      panel.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('a')) setMenu(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && header.hasAttribute('data-menu-open')) {
+          setMenu(false);
+          toggle.focus();
+        }
+      });
+      window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => {
+        if (e.matches) setMenu(false);
+      });
+    }
+  }
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: var(--header-h);
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 0.3s,
+      border-color 0.3s,
+      backdrop-filter 0.3s;
+  }
+
+  .site-header[data-scrolled],
+  .site-header[data-menu-open] {
+    background: rgb(7 18 51 / 0.94);
+    border-bottom-color: var(--border);
+    backdrop-filter: saturate(150%) blur(14px);
+    -webkit-backdrop-filter: saturate(150%) blur(14px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    height: 100%;
+  }
+
+  .site-header__brand {
+    display: inline-flex;
+    text-decoration: none;
+    border-radius: var(--radius-s);
+  }
+
+  .site-nav__list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  .site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+  }
+
+  .site-nav__link:hover {
+    color: var(--fg);
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  .site-nav__link[aria-current='page'] {
+    color: #fff;
+    background: rgb(65 105 225 / 0.28);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  /* — Mobile toggle — */
+  .menu-toggle {
+    display: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+  }
+
+  .menu-toggle__bars {
+    position: relative;
+    width: 18px;
+    height: 10px;
+  }
+
+  .menu-toggle__bars i {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--fg);
+    transition:
+      transform 0.3s var(--ease-out),
+      top 0.3s var(--ease-out);
+  }
+
+  .menu-toggle__bars i:first-child {
+    top: 0;
+  }
+
+  .menu-toggle__bars i:last-child {
+    top: 8px;
+  }
+
+  [data-menu-open] .menu-toggle__bars i:first-child {
+    top: 4px;
+    transform: rotate(45deg);
+  }
+
+  [data-menu-open] .menu-toggle__bars i:last-child {
+    top: 4px;
+    transform: rotate(-45deg);
+  }
+
+  /* — Mobile menu panel — */
+  .mobile-menu {
+    position: fixed;
+    inset: var(--header-h) 0 0;
+    overflow-y: auto;
+    background:
+      radial-gradient(80% 50% at 100% 0%, rgb(65 105 225 / 0.22), transparent 70%),
+      var(--navy-900);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.25s,
+      transform 0.3s var(--ease-out),
+      visibility 0s linear 0.3s;
+  }
+
+  [data-menu-open] .mobile-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .mobile-menu__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+    padding-block: var(--space-l) var(--space-xl);
+    min-height: 100%;
+  }
+
+  .mobile-menu__main {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .mobile-menu__main a {
+    display: block;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+  }
+
+  .mobile-menu__main a[aria-current='page'] {
+    color: var(--accent-text);
+  }
+
+  .mobile-menu__foot {
+    display: grid;
+    gap: var(--space-s);
+    margin-top: auto;
+  }
+
+  .mobile-menu__contact {
+    display: grid;
+    gap: 0.35rem;
+    justify-items: center;
+    font-size: 0.9rem;
+  }
+
+  .mobile-menu__contact a {
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  @media (max-width: 900px) {
+    .site-nav {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: grid;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .site-header__cta {
+      display: none;
+    }
+  }
+</style>

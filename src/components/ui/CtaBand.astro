@@ -1,0 +1,108 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import FieldLines from '@/components/ui/FieldLines.astro';
+import { site, phoneHref } from '@/config';
+import { href } from '@/lib/url';
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  text?: string;
+}
+const {
+  eyebrow = 'Talk to us',
+  title = 'Interested in our instruments?',
+  text = 'Tell us about your application. We’ll get back to you with product details and availability, or to discuss custom R&D work.',
+} = Astro.props;
+---
+
+<section class="cta theme-dark" aria-labelledby="cta-title">
+  <div class="container">
+    <div class="cta__panel" data-reveal>
+      <FieldLines class="cta__fields" width={1200} height={500} cx={1050} cy={420} rings={12} base={30} gap={34} seed={3} highlight={5} />
+      <div class="cta__content">
+        <p class="eyebrow">{eyebrow}</p>
+        <h2 id="cta-title" class="h1 cta__title">{title}</h2>
+        <p class="lead cta__text">{text}</p>
+        <div class="btn-row">
+          <a class="btn btn--white" href={href('/contact/')}>
+            Contact sales
+            <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+          </a>
+          <a class="btn btn--secondary" href={`mailto:${site.email}`}>
+            <Icon name="mail" strokeWidth={2} />
+            {site.email}
+          </a>
+          {
+            site.phone && (
+              <a class="btn btn--secondary" href={phoneHref}>
+                <Icon name="phone" strokeWidth={2} />
+                {site.phone}
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    padding-block: clamp(3rem, 2rem + 4vw, 6rem);
+    background: var(--navy-900);
+  }
+
+  .cta__panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(2.5rem, 1.5rem + 5vw, 5.5rem) clamp(1.5rem, 1rem + 4vw, 5rem);
+    border: 1px solid rgb(152 175 246 / 0.28);
+    border-radius: var(--radius-xl);
+    background:
+      radial-gradient(70% 120% at 100% 100%, rgb(90 209 255 / 0.22), transparent 60%),
+      radial-gradient(60% 90% at 0% 0%, rgb(255 255 255 / 0.12), transparent 60%),
+      linear-gradient(135deg, var(--royal-600) 0%, var(--royal-800) 55%, var(--royal-900) 100%);
+    box-shadow: 0 40px 90px -40px rgb(65 105 225 / 0.7);
+  }
+
+  .cta__panel :global(.cta__fields) {
+    z-index: -1;
+    color: rgb(255 255 255 / 0.1);
+  }
+
+  .cta__panel :global(.fields__line--hi) {
+    stroke: var(--cyan-300);
+  }
+
+  .cta__content {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+    max-width: 760px;
+  }
+
+  .cta .eyebrow {
+    color: var(--royal-100);
+  }
+
+  .cta__title {
+    max-width: 18ch;
+  }
+
+  .cta__text {
+    max-width: 56ch;
+    color: var(--royal-100);
+  }
+
+  .cta .btn-row {
+    margin-top: var(--space-2xs);
+  }
+
+  .cta .btn--secondary {
+    --btn-border: rgb(255 255 255 / 0.35);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+</style>

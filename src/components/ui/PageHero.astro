@@ -1,0 +1,196 @@
+---
+import FieldLines from '@/components/ui/FieldLines.astro';
+import { href } from '@/lib/url';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  crumbs?: Crumb[];
+  /** Two-column layout with a visual on the right (named slot "visual"). */
+  split?: boolean;
+  seed?: number;
+}
+
+const { eyebrow, title, lead, crumbs = [], split = false, seed = 5 } = Astro.props;
+const trail: Crumb[] = [{ label: 'Home', href: '/' }, ...crumbs];
+---
+
+<section class:list={['phero theme-dark', { 'phero--split': split }]} aria-labelledby="page-title">
+  <div class="phero__bg" aria-hidden="true">
+    <div class="phero__grid bg-grid"></div>
+    <FieldLines class="phero__fields" cx={1020} cy={120} rings={10} base={40} gap={40} seed={seed} highlight={3} />
+  </div>
+
+  <div class="container phero__layout">
+    <div class="phero__copy">
+      {
+        crumbs.length > 0 && (
+          <nav class="crumbs mono" aria-label="Breadcrumb" data-reveal>
+            <ol role="list">
+              {trail.map((c, i) => (
+                <li>
+                  {c.href && i < trail.length - 1 ? (
+                    <a href={href(c.href)}>{c.label}</a>
+                  ) : (
+                    <span aria-current="page">{c.label}</span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      <p class="eyebrow" data-reveal>{eyebrow}</p>
+      <h1 id="page-title" class="h1 phero__title" data-reveal style="--reveal-delay: 60ms" set:html={title} />
+      {lead && <p class="lead phero__lead" data-reveal style="--reveal-delay: 120ms" set:html={lead} />}
+      <div class="phero__actions" data-reveal style="--reveal-delay: 180ms">
+        <slot />
+      </div>
+    </div>
+    {
+      split && (
+        <div class="phero__visual" data-reveal style="--reveal-delay: 140ms">
+          <slot name="visual" />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .phero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 1.5rem + 4vw, 5rem));
+    padding-bottom: clamp(3.5rem, 2rem + 5vw, 6rem);
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(70% 90% at 85% 0%, rgb(65 105 225 / 0.34), transparent 62%),
+      radial-gradient(40% 60% at 0% 100%, rgb(90 209 255 / 0.07), transparent 70%),
+      linear-gradient(180deg, var(--navy-900), #060f2b);
+  }
+
+  .phero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .phero__grid {
+    position: absolute;
+    inset: 0;
+    mask-image: radial-gradient(110% 100% at 75% 0%, #000 25%, transparent 75%);
+    -webkit-mask-image: radial-gradient(110% 100% at 75% 0%, #000 25%, transparent 75%);
+  }
+
+  .phero :global(.phero__fields) {
+    color: rgb(159 176 216 / 0.1);
+  }
+
+  .phero__layout {
+    display: grid;
+    gap: clamp(2.5rem, 1rem + 4vw, 5rem);
+  }
+
+  .phero--split .phero__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+    align-items: center;
+  }
+
+  .phero__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .phero__title {
+    max-width: 18ch;
+  }
+
+  .phero__title :global(em) {
+    font-style: normal;
+    color: var(--royal-300);
+    background: linear-gradient(100deg, #b9c9ff 0%, #7b9bff 40%, var(--royal-500) 75%, var(--cyan-400) 110%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .phero__actions:empty {
+    display: none;
+  }
+
+  .phero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-2xs);
+  }
+
+  .phero__visual :global(.ill) {
+    border-radius: var(--radius-l);
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.85);
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0;
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .crumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .crumbs li + li::before {
+    content: '/';
+    opacity: 0.6;
+  }
+
+  .crumbs a {
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--fg);
+  }
+
+  .crumbs [aria-current] {
+    color: var(--fg);
+  }
+
+  @media (max-width: 1000px) {
+    .phero--split .phero__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .phero__visual {
+      max-width: 640px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .phero__actions {
+      width: 100%;
+    }
+
+    .phero__actions > :global(.btn) {
+      flex: 1 1 auto;
+    }
+  }
+</style>

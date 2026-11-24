@@ -1,0 +1,466 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/ui/PageHero.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { site, addressLines, mapsUrl, phoneHref } from '@/config';
+import { approach, values, focusAreas } from '@/data/content';
+import { products } from '@/data/products';
+import { breadcrumbSchema } from '@/lib/schema';
+import { href } from '@/lib/url';
+
+const facts = [
+  { label: 'Sector', value: 'Research & development' },
+  { label: 'Focus', value: focusAreas.map((f) => f.title).join(' · ') },
+  { label: 'Products', value: products.map((p) => p.name).join(' · ') },
+  { label: 'Software', value: 'Instrument software (downloads coming soon)' },
+  { label: 'Based in', value: `${site.address.city}, ${site.address.region}, ${site.address.country}` },
+  { label: 'Contact', value: site.email },
+];
+
+const schema = [
+  breadcrumbSchema(Astro.site, [{ label: 'About', href: '/about/' }]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: `About ${site.name}`,
+  },
+];
+---
+
+<BaseLayout
+  title="About Us"
+  description="Redoxtronics is an R&D company in Tiruchirappalli, Tamil Nadu, specialising in electrochemical workstations, gas sensors and embedded systems."
+  schema={schema}
+>
+  <PageHero
+    eyebrow="About Redoxtronics"
+    title="R&amp;D specialists in <em>electrochemical instrumentation.</em>"
+    lead="We research, design and develop instruments for electrochemistry and gas sensing: the electronics, the firmware and the software, all under one roof."
+    crumbs={[{ label: 'About' }]}
+    split
+    seed={7}
+  >
+    <a class="btn btn--primary" href={href('/products/')}>
+      Our products
+      <Icon name="arrow-right" class="arrow" strokeWidth={2} />
+    </a>
+    <a class="btn btn--secondary" href={href('/contact/')}>Contact us</a>
+
+    <div slot="visual" class="sheet">
+      <div class="sheet__head mono">
+        <span>Company profile</span>
+        <span class="sheet__status"><span class="led" aria-hidden="true"></span> R&amp;D</span>
+      </div>
+      <dl class="sheet__list">
+        {
+          facts.map((f) => (
+            <div class="sheet__row">
+              <dt class="mono">{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </PageHero>
+
+  <section class="section theme-light" aria-labelledby="who-title">
+    <div class="container who">
+      <div class="who__head">
+        <p class="eyebrow" data-reveal><span class="num">01</span> Who we are</p>
+        <h2 id="who-title" class="h2" data-reveal style="--reveal-delay: 60ms">
+          Chemistry and electronics, <span class="grad">under one roof.</span>
+        </h2>
+      </div>
+      <div class="who__body" data-reveal style="--reveal-delay: 120ms">
+        <p class="lead">
+          Redoxtronics is an R&amp;D company specialising in electrochemical workstations, gas sensors and
+          embedded systems. Our name brings together <strong>redox</strong>, the reduction–oxidation reactions
+          at the heart of electrochemistry, and <strong>electronics</strong>, which is exactly where we work.
+        </p>
+        <p>
+          We work across the complete measurement chain: sensors and electrodes, analog front-end
+          electronics, embedded firmware and the software that turns signals into results. Our current
+          products are a <a href={href('/products/#portable-electrochemical-workstation')}>portable
+          electrochemical workstation</a> and <a href={href('/products/#gas-sensor-detectors')}>gas sensor
+          detectors</a>, each developed in two versions, with <a href={href('/software/')}>dedicated
+          software</a> to follow.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section theme-light section--white" aria-labelledby="values-title">
+    <div class="container">
+      <SectionHeader
+        id="values-title"
+        index="02"
+        eyebrow="Why Redoxtronics"
+        title="Designed as a whole, <em>from the electrode up.</em>"
+        align="split"
+        lead="Measurement quality depends on every link in the chain. That is why we develop all of it ourselves."
+      />
+      <div class="values" data-reveal-stagger="90">
+        {
+          values.map((v) => (
+            <article class="value" data-reveal>
+              <span class="icon-tile">
+                <Icon name={v.icon} />
+              </span>
+              <h3 class="h4">{v.title}</h3>
+              <p>{v.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section theme-dark approach" aria-labelledby="approach-title">
+    <div class="approach__bg bg-grid" aria-hidden="true"></div>
+    <div class="container">
+      <SectionHeader
+        id="approach-title"
+        index="03"
+        eyebrow="How we work"
+        title="From research <em>to instrument.</em>"
+        align="split"
+        lead="Every product starts as an R&amp;D problem and ends as an instrument people can rely on."
+      />
+      <ol role="list" class="steps" data-reveal-stagger="100">
+        {
+          approach.map((s, i) => (
+            <li class="step" data-reveal>
+              <div class="step__top">
+                <span class="step__n mono">0{i + 1}</span>
+                <span class="step__icon">
+                  <Icon name={s.icon} />
+                </span>
+              </div>
+              <h3 class="h4">{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section theme-light" aria-labelledby="office-title">
+    <div class="container office">
+      <div class="office__copy">
+        <p class="eyebrow" data-reveal><span class="num">04</span> Registered office</p>
+        <h2 id="office-title" class="h2" data-reveal style="--reveal-delay: 60ms">
+          Based in <span class="grad">{site.address.city}.</span>
+        </h2>
+        <p class="lead" data-reveal style="--reveal-delay: 120ms">
+          Our registered office is in {site.address.city}, {site.address.region}. Get in touch by email or
+          phone for product enquiries.
+        </p>
+      </div>
+      <div class="office__card card" data-reveal style="--reveal-delay: 120ms">
+        <div class="office__row">
+          <span class="icon-tile icon-tile--soft"><Icon name="building-2" /></span>
+          <div>
+            <p class="office__label mono">Registered address</p>
+            <address class="office__address">
+              {site.name}<br />
+              {addressLines.map((line) => <><span>{line}</span><br /></>)}
+            </address>
+            <a class="text-link" href={mapsUrl} target="_blank" rel="noopener">
+              Open in Google Maps
+              <Icon name="external-link" strokeWidth={2} />
+            </a>
+          </div>
+        </div>
+        <div class="office__row">
+          <span class="icon-tile icon-tile--soft"><Icon name="mail" /></span>
+          <div>
+            <p class="office__label mono">Email</p>
+            <a class="office__value" href={`mailto:${site.email}`}>{site.email}</a>
+          </div>
+        </div>
+        {
+          site.phone && (
+            <div class="office__row">
+              <span class="icon-tile icon-tile--soft">
+                <Icon name="phone" />
+              </span>
+              <div>
+                <p class="office__label mono">Phone</p>
+                <a class="office__value" href={phoneHref}>
+                  {site.phone}
+                </a>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>
+
+<style>
+  /* — Company profile sheet — */
+  .sheet {
+    border: 1px solid rgb(152 175 246 / 0.28);
+    border-radius: var(--radius-l);
+    background: linear-gradient(180deg, rgb(16 35 90 / 0.9), rgb(8 20 54 / 0.9));
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.85);
+    overflow: hidden;
+  }
+
+  .sheet__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg);
+  }
+
+  .sheet__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sheet__list {
+    display: grid;
+    padding: 0.4rem 1.25rem 0.8rem;
+  }
+
+  .sheet__row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: var(--space-s);
+    padding: 0.8rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .sheet__row:last-child {
+    border-bottom: 0;
+  }
+
+  .sheet__row dt {
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+    padding-top: 0.15rem;
+  }
+
+  .sheet__row dd {
+    color: var(--fg);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+
+  /* — Who we are — */
+  .who {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--space-l) clamp(2rem, 1rem + 5vw, 6rem);
+    align-items: start;
+  }
+
+  .who__head {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .who__body {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .who__body p:not(.lead) {
+    color: var(--fg-muted);
+  }
+
+  .who__body strong {
+    color: var(--fg);
+  }
+
+  .who__body a {
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+
+  /* — Values — */
+  .values {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-l);
+  }
+
+  .value {
+    display: grid;
+    align-content: start;
+    gap: var(--space-s);
+    padding-top: var(--space-m);
+    border-top: 2px solid var(--royal-500);
+  }
+
+  .value p {
+    color: var(--fg-muted);
+  }
+
+  /* — Approach — */
+  .approach {
+    overflow: hidden;
+    background:
+      radial-gradient(50% 70% at 100% 0%, rgb(65 105 225 / 0.25), transparent 70%),
+      var(--navy-900);
+  }
+
+  .approach__bg {
+    position: absolute;
+    inset: 0;
+    mask-image: radial-gradient(80% 70% at 80% 0%, #000, transparent 80%);
+    -webkit-mask-image: radial-gradient(80% 70% at 80% 0%, #000, transparent 80%);
+  }
+
+  .approach .container {
+    position: relative;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-m);
+    counter-reset: step;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-s);
+    padding: var(--space-m);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  .step__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .step__n {
+    font-size: var(--step--1);
+    color: var(--accent-text);
+  }
+
+  .step__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--royal-200);
+  }
+
+  .step__icon :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .step p {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+
+  /* — Office — */
+  .office {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-l) clamp(2rem, 1rem + 5vw, 6rem);
+    align-items: center;
+  }
+
+  .office__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .office__card {
+    display: grid;
+    gap: var(--space-m);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .office__row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-s);
+    align-items: start;
+  }
+
+  .office__row + .office__row {
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--border);
+  }
+
+  .office__label {
+    margin-bottom: 0.3rem;
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .office__address {
+    margin-bottom: 0.6rem;
+    font-style: normal;
+    line-height: 1.6;
+  }
+
+  .office__value {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 600;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .office__value:hover {
+    color: var(--accent-text);
+  }
+
+  @media (max-width: 1080px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .who,
+    .office,
+    .values {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .steps {
+      grid-template-columns: 1fr;
+    }
+
+    .sheet__row {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+  }
+</style>

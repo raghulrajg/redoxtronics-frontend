@@ -1,0 +1,302 @@
+---
+import Logo from '@/components/ui/Logo.astro';
+import Icon from '@/components/ui/Icon.astro';
+import SocialIcon from '@/components/ui/SocialIcon.astro';
+import { site, phoneHref, addressLines, mapsUrl } from '@/config';
+import { products } from '@/data/products';
+import { href } from '@/lib/url';
+
+const year = new Date().getFullYear();
+const socials = (Object.entries(site.socials) as [keyof typeof site.socials, string][]).filter(
+  ([, url]) => Boolean(url),
+);
+const socialLabels: Record<string, string> = {
+  linkedin: 'LinkedIn',
+  github: 'GitHub',
+  x: 'X (Twitter)',
+  youtube: 'YouTube',
+};
+---
+
+<footer class="site-footer theme-dark">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <a href={href('/')} class="site-footer__logo" aria-label={`${site.name} home`}>
+          <Logo size={40} />
+        </a>
+        <p class="site-footer__about">
+          R&amp;D specialists in electrochemical workstations, gas sensors and embedded systems.
+        </p>
+        <span class="chip"><span class="led" aria-hidden="true"></span> Research &amp; development</span>
+      </div>
+
+      <nav class="site-footer__col" aria-labelledby="footer-products">
+        <h2 id="footer-products" class="site-footer__heading mono">Products</h2>
+        <ul role="list">
+          {
+            products.map((p) => (
+              <li>
+                <a href={href(`/products/#${p.slug}`)}>{p.name}</a>
+              </li>
+            ))
+          }
+          <li><a href={href('/software/')}>Software downloads</a></li>
+        </ul>
+      </nav>
+
+      <nav class="site-footer__col" aria-labelledby="footer-company">
+        <h2 id="footer-company" class="site-footer__heading mono">Company</h2>
+        <ul role="list">
+          <li><a href={href('/about/')}>About us</a></li>
+          <li><a href={href('/products/')}>Products</a></li>
+          <li><a href={href('/software/')}>Software</a></li>
+          <li><a href={href('/contact/')}>Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="site-footer__col">
+        <h2 class="site-footer__heading mono">Get in touch</h2>
+        <ul role="list" class="site-footer__contact">
+          <li>
+            <Icon name="mail" class="icon" />
+            <span class="site-footer__ci">
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+              <span class="site-footer__cl">Sales &amp; enquiries</span>
+            </span>
+          </li>
+          {
+            site.phone && (
+              <li>
+                <Icon name="phone" class="icon" />
+                <a href={phoneHref}>{site.phone}</a>
+              </li>
+            )
+          }
+          <li>
+            <Icon name="map-pin" class="icon" />
+            <span class="site-footer__ci">
+              <a href={mapsUrl} target="_blank" rel="noopener">
+                <address>
+                  {addressLines.map((line) => <span>{line}</span>)}
+                </address>
+              </a>
+              <span class="site-footer__cl">Registered office</span>
+            </span>
+          </li>
+        </ul>
+        {
+          socials.length > 0 && (
+            <ul role="list" class="site-footer__socials">
+              {socials.map(([key, url]) => (
+                <li>
+                  <a href={url} rel="noopener" target="_blank" aria-label={socialLabels[key]}>
+                    <SocialIcon name={key} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </div>
+
+    <svg class="site-footer__wordmark" viewBox="0 0 1240 96" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="wordmark-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7b9bff" stop-opacity="0.22"></stop>
+          <stop offset="1" stop-color="#4169e1" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <text x="0" y="88" textLength="1240" lengthAdjust="spacingAndGlyphs">REDOXTRONICS</text>
+    </svg>
+
+    <div class="site-footer__bottom">
+      <p>© {year} {site.name}. All rights reserved.</p>
+      <p class="mono site-footer__motto">Designed &amp; developed in Tiruchirappalli, India</p>
+      <a href="#main" class="site-footer__top">
+        Back to top
+        <Icon name="arrow-up-right" size={16} strokeWidth={2} />
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+    border-top: 1px solid var(--border);
+    background:
+      radial-gradient(60% 70% at 85% 115%, rgb(65 105 225 / 0.28), transparent 70%),
+      var(--navy-950);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1.2fr 0.8fr 1.4fr;
+    gap: var(--space-xl) var(--space-l);
+  }
+
+  .site-footer__brand {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: var(--space-m);
+  }
+
+  .site-footer__logo {
+    text-decoration: none;
+    border-radius: var(--radius-s);
+  }
+
+  .site-footer__about {
+    max-width: 34ch;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+
+  .site-footer__heading {
+    margin-bottom: var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .site-footer__col ul {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .site-footer__col a {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .site-footer__col a:hover {
+    color: var(--fg);
+  }
+
+  .site-footer__contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer__ci {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .site-footer__cl {
+    font-size: 0.8rem;
+    color: var(--fg-subtle);
+  }
+
+  .site-footer address {
+    display: grid;
+    font-style: normal;
+    line-height: 1.5;
+  }
+
+  .site-footer__contact :global(.icon) {
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: 0.2rem;
+    color: var(--accent-text);
+  }
+
+  .site-footer__socials {
+    display: flex !important;
+    gap: 0.5rem !important;
+    margin-top: var(--space-m);
+  }
+
+  .site-footer__socials a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+  }
+
+  .site-footer__socials a:hover {
+    border-color: var(--fg);
+  }
+
+  .site-footer__wordmark {
+    width: 100%;
+    height: auto;
+    margin-top: clamp(3rem, 2rem + 5vw, 6rem);
+    margin-bottom: -1px;
+    overflow: visible;
+    user-select: none;
+  }
+
+  .site-footer__wordmark text {
+    font-family: var(--font-display);
+    font-size: 112px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    fill: url(#wordmark-fill);
+    stroke: rgb(152 175 246 / 0.22);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s) var(--space-l);
+    padding-block: var(--space-m) var(--space-l);
+    border-top: 1px solid var(--border);
+    color: var(--fg-subtle);
+    font-size: 0.875rem;
+  }
+
+  .site-footer__motto {
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .site-footer__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .site-footer__top:hover {
+    color: var(--fg);
+  }
+
+  @media (max-width: 1024px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

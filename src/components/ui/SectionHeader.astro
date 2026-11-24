@@ -1,0 +1,79 @@
+---
+interface Props {
+  eyebrow?: string;
+  index?: string;
+  title: string;
+  lead?: string;
+  align?: 'start' | 'center' | 'split';
+  id?: string;
+  as?: 'h1' | 'h2';
+}
+const { eyebrow, index, title, lead, align = 'start', id, as: Tag = 'h2' } = Astro.props;
+---
+
+<header class:list={['sh', `sh--${align}`]}>
+  <div class="sh__main">
+    {
+      eyebrow && (
+        <p class="eyebrow" data-reveal>
+          {index && <span class="num">{index}</span>}
+          {eyebrow}
+        </p>
+      )
+    }
+    <Tag id={id} class="h2 sh__title" data-reveal style="--reveal-delay: 60ms" set:html={title} />
+  </div>
+  {lead && <p class="lead sh__lead" data-reveal style="--reveal-delay: 120ms" set:html={lead} />}
+  <slot />
+</header>
+
+<style>
+  .sh {
+    display: grid;
+    gap: var(--space-m);
+    margin-bottom: clamp(2.5rem, 1.8rem + 3vw, 4rem);
+  }
+
+  .sh__main {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .sh__title {
+    max-width: 22ch;
+  }
+
+  .sh__title :global(em) {
+    font-style: normal;
+    color: var(--accent-text);
+  }
+
+  .sh--center {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .sh--center .sh__main {
+    justify-items: center;
+  }
+
+  .sh--split {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-m) var(--space-2xl);
+  }
+
+  .sh--split .sh__lead {
+    justify-self: end;
+  }
+
+  @media (max-width: 880px) {
+    .sh--split {
+      grid-template-columns: 1fr;
+    }
+
+    .sh--split .sh__lead {
+      justify-self: start;
+    }
+  }
+</style>

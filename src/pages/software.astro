@@ -1,0 +1,377 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/ui/PageHero.astro';
+import SectionHeader from '@/components/ui/SectionHeader.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import Icon from '@/components/ui/Icon.astro';
+import SoftwareArt from '@/components/illustrations/SoftwareArt.astro';
+import { site, phoneHref } from '@/config';
+import { software, isAvailable } from '@/data/software';
+import { breadcrumbSchema } from '@/lib/schema';
+import { href, mailto } from '@/lib/url';
+
+const anyAvailable = software.some(isAvailable);
+const isExternal = (url: string) => /^https?:\/\//i.test(url);
+
+const steps = [
+  { icon: 'download', title: 'Download', text: 'Choose the software for your instrument and download the installer.' },
+  { icon: 'monitor', title: 'Install', text: 'Run the installer on your computer and follow the on-screen steps.' },
+  { icon: 'activity', title: 'Connect & measure', text: 'Connect your Redoxtronics instrument and start measuring.' },
+] as const;
+
+const schema = [
+  breadcrumbSchema(Astro.site, [{ label: 'Software', href: '/software/' }]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${site.name} software downloads`,
+  },
+];
+---
+
+<BaseLayout
+  title="Software Downloads"
+  description="Download software for Redoxtronics instruments: electrochemical workstation and gas sensor detector software. Downloads coming soon."
+  schema={schema}
+>
+  <PageHero
+    eyebrow="Software"
+    title="Software <em>downloads.</em>"
+    lead="Software for Redoxtronics instruments. Installers, release notes and user guides will be published on this page as soon as they are released."
+    crumbs={[{ label: 'Software' }]}
+    split
+    seed={6}
+  >
+    <a class="btn btn--primary" href="#downloads">
+      <Icon name="download" strokeWidth={2} />
+      View downloads
+    </a>
+    <a class="btn btn--secondary" href={mailto(site.email, 'Notify me about Redoxtronics software downloads')}>
+      <Icon name="bell" strokeWidth={2} />
+      Get notified
+    </a>
+    <SoftwareArt slot="visual" />
+  </PageHero>
+
+  <section class="section theme-light" id="downloads" aria-labelledby="downloads-title">
+    <div class="container">
+      <SectionHeader
+        id="downloads-title"
+        eyebrow="Downloads"
+        title="Instrument <em>software.</em>"
+        lead="Each instrument comes with its own software. Download the one that matches your product."
+        align="split"
+      />
+
+      {
+        !anyAvailable && (
+          <div class="notice" role="note" data-reveal>
+            <Icon name="clock" class="icon" />
+            <p>
+              <strong>Downloads are coming soon.</strong> The software is not available to download yet. It
+              will appear on this page as soon as it is released. Need it sooner?{' '}
+              <a href={mailto(site.email, 'Software request')}>Email {site.email}</a>.
+            </p>
+          </div>
+        )
+      }
+
+      <div class="dl-list" data-reveal-stagger="90">
+        {
+          software.map((s) => {
+            const available = isAvailable(s);
+            return (
+              <article class="dl card" id={s.id} data-reveal>
+                <span class="icon-tile dl__icon">
+                  <Icon name={s.icon} />
+                </span>
+                <div class="dl__main">
+                  <div class="dl__top">
+                    <h3 class="h4">{s.name}</h3>
+                    {available ? (
+                      <span class="badge">
+                        <Icon name="check" strokeWidth={2.5} />
+                        {s.version ? `v${s.version.replace(/^v/i, '')}` : 'Available'}
+                      </span>
+                    ) : (
+                      <span class="badge badge--soon">
+                        <Icon name="clock" strokeWidth={2} />
+                        Coming soon
+                      </span>
+                    )}
+                  </div>
+                  <p class="dl__desc">{s.description}</p>
+                  <dl class="dl__meta">
+                    <div>
+                      <dt class="mono">For</dt>
+                      <dd>{s.product}</dd>
+                    </div>
+                    <div>
+                      <dt class="mono">Version</dt>
+                      <dd>{s.version || 'To be announced'}</dd>
+                    </div>
+                    <div>
+                      <dt class="mono">Platform</dt>
+                      <dd>{s.platform || 'To be announced'}</dd>
+                    </div>
+                    <div>
+                      <dt class="mono">Size</dt>
+                      <dd>{s.size || '—'}</dd>
+                    </div>
+                    {s.released && (
+                      <div>
+                        <dt class="mono">Released</dt>
+                        <dd>{s.released}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+                <div class="dl__actions">
+                  {available ? (
+                    <a
+                      class="btn btn--primary"
+                      href={href(s.url)}
+                      {...(isExternal(s.url) ? { rel: 'noopener' } : { download: '' })}
+                    >
+                      <Icon name="download" strokeWidth={2} />
+                      Download
+                    </a>
+                  ) : (
+                    <button type="button" class="btn btn--primary" disabled aria-disabled="true">
+                      <Icon name="hourglass" strokeWidth={2} />
+                      Coming soon
+                    </button>
+                  )}
+                  {s.notes && (
+                    <a class="text-link" href={href(s.notes)}>
+                      Release notes
+                      <Icon name="arrow-right" strokeWidth={2} />
+                    </a>
+                  )}
+                  {!available && (
+                    <a class="text-link" href={mailto(site.email, `Early access: ${s.name}`)}>
+                      Request early access
+                      <Icon name="arrow-right" strokeWidth={2} />
+                    </a>
+                  )}
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section theme-light section--white" aria-labelledby="setup-title">
+    <div class="container">
+      <SectionHeader
+        id="setup-title"
+        eyebrow="Getting started"
+        title="Up and running <em>in three steps.</em>"
+        align="split"
+        lead="Once the software is released, setting up is straightforward. We’re here to help if you get stuck."
+      />
+      <ol role="list" class="setup" data-reveal-stagger="90">
+        {
+          steps.map((s, i) => (
+            <li class="setup__step" data-reveal>
+              <span class="setup__n mono">0{i + 1}</span>
+              <span class="icon-tile icon-tile--soft">
+                <Icon name={s.icon} />
+              </span>
+              <h3 class="h4">{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="help card" data-reveal>
+        <div>
+          <h3 class="h4">Need help with the software?</h3>
+          <p class="muted">Contact us and we’ll help you install it and connect your instrument.</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={mailto(site.email, 'Software support')}>
+            <Icon name="mail" strokeWidth={2} />
+            {site.email}
+          </a>
+          {
+            site.phone && (
+              <a class="btn btn--secondary" href={phoneHref}>
+                <Icon name="phone" strokeWidth={2} />
+                {site.phone}
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Software"
+    title="Need the software now?"
+    text="Downloads are on the way. Contact our team and we’ll help you get set up with your instrument."
+  />
+</BaseLayout>
+
+<style>
+  .notice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-s);
+    align-items: start;
+    margin-bottom: var(--space-l);
+    padding: var(--space-m);
+    border: 1px solid rgb(217 119 6 / 0.3);
+    border-radius: var(--radius-l);
+    background: #fff8e6;
+    color: #78350f;
+  }
+
+  .notice :global(.icon) {
+    margin-top: 0.15rem;
+    color: #b45309;
+  }
+
+  .notice a {
+    color: #92400e;
+    font-weight: 600;
+  }
+
+  .dl-list {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-m);
+    align-items: start;
+    padding: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+  }
+
+  .dl__main {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .dl__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem var(--space-s);
+  }
+
+  .dl__desc {
+    color: var(--fg-muted);
+    max-width: 62ch;
+  }
+
+  .dl__meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, auto));
+    justify-content: start;
+    gap: var(--space-xs) var(--space-l);
+    margin-top: var(--space-2xs);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--border);
+  }
+
+  .dl__meta dt {
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .dl__meta dd {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .dl__actions {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-s);
+  }
+
+  .setup {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-m);
+  }
+
+  .setup__step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-s);
+    padding: var(--space-m);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    background: var(--surface-2);
+  }
+
+  .setup__n {
+    position: absolute;
+    top: var(--space-m);
+    right: var(--space-m);
+    font-size: var(--step--1);
+    color: var(--fg-subtle);
+  }
+
+  .setup__step p {
+    color: var(--fg-muted);
+  }
+
+  .help {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    margin-top: var(--space-xl);
+    padding: clamp(1.25rem, 1rem + 1.5vw, 2.25rem);
+  }
+
+  .help > div:first-child {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  @media (max-width: 960px) {
+    .dl {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .dl__actions {
+      grid-column: 2;
+    }
+
+    .dl__meta {
+      grid-template-columns: repeat(2, minmax(0, auto));
+    }
+
+    .setup {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .dl {
+      grid-template-columns: 1fr;
+    }
+
+    .dl__actions {
+      grid-column: auto;
+    }
+
+    .dl__meta {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,149 @@
+---
+import '@fontsource-variable/sora';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '@/styles/global.css';
+
+import soraFont from '@fontsource-variable/sora/files/sora-latin-wght-normal.woff2?url';
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import { site } from '@/config';
+import { href } from '@/lib/url';
+import { focusAreas } from '@/data/content';
+
+interface Props {
+  /** Page title. The site name is appended automatically unless `rawTitle` is set. */
+  title: string;
+  description?: string;
+  rawTitle?: boolean;
+  /** Path to the Open Graph image inside /public. */
+  ogImage?: string;
+  noindex?: boolean;
+  /** Extra JSON-LD objects for this page. */
+  schema?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = site.description,
+  rawTitle = false,
+  ogImage = '/og-image.png',
+  noindex = false,
+  schema = [],
+} = Astro.props;
+
+const fullTitle = rawTitle ? title : `${title} · ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(href(ogImage), Astro.site);
+const siteRoot = new URL(href('/'), Astro.site).toString();
+const telephone = site.phone.replace(/\s+/g, '');
+
+const sameAs = Object.values(site.socials).filter(Boolean);
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${siteRoot}#organization`,
+  name: site.name,
+  url: siteRoot,
+  logo: new URL(href('/icon-512.png'), Astro.site).toString(),
+  image: ogImageUrl.toString(),
+  description: site.description,
+  email: site.email,
+  ...(site.phone ? { telephone } : {}),
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      contactType: 'sales',
+      email: site.email,
+      ...(site.phone ? { telephone } : {}),
+      areaServed: 'IN',
+      availableLanguage: ['English', 'Tamil'],
+    },
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: `${site.address.street}, ${site.address.locality}`,
+    addressLocality: site.address.city,
+    addressRegion: site.address.region,
+    postalCode: site.address.postalCode,
+    addressCountry: site.address.countryCode,
+  },
+  knowsAbout: [
+    ...focusAreas.map((f) => f.title),
+    'Electrochemistry',
+    'Potentiostats',
+    'Gas detection',
+    'Instrumentation software',
+  ],
+  ...(sameAs.length ? { sameAs } : {}),
+};
+const jsonLd = [organization, ...schema];
+---
+
+<!doctype html>
+<html lang="en-IN" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      document.documentElement.classList.replace('no-js', 'js');
+    </script>
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="preload" href={soraFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interFont} as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href={href('/favicon.ico')} sizes="48x48 32x32 16x16" />
+    <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={href('/icon-192.png')} type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href={href('/apple-touch-icon.png')} />
+    <link rel="manifest" href={href('/site.webmanifest')} />
+    <link rel="sitemap" href={href('/sitemap-index.xml')} />
+    <meta name="theme-color" content="#071233" />
+    <meta name="author" content={site.name} />
+    <meta name="geo.region" content="IN-TN" />
+    <meta name="geo.placename" content={site.address.city} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name}: ${site.tagline}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body class="theme-dark">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      import '@/scripts/reveal';
+    </script>
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

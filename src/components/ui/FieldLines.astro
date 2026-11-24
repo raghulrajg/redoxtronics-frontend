@@ -1,0 +1,59 @@
+---
+import { fieldRings, type FieldOptions } from '@/lib/fields';
+
+interface Props extends Partial<FieldOptions> {
+  class?: string;
+  width?: number;
+  height?: number;
+  /** Index of a ring to highlight in royal blue. */
+  highlight?: number;
+}
+
+const {
+  class: className,
+  width = 1200,
+  height = 800,
+  highlight,
+  cx = width * 0.8,
+  cy = height * 0.3,
+  ...opts
+} = Astro.props;
+const paths = fieldRings({ cx, cy, ...opts });
+---
+
+<svg
+  class:list={['fields', className]}
+  viewBox={`0 0 ${width} ${height}`}
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  {
+    paths.map((d, i) => (
+      <path d={d} class:list={['fields__line', { 'fields__line--hi': i === highlight }]} />
+    ))
+  }
+</svg>
+
+<style>
+  .fields {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .fields__line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .fields__line--hi {
+    stroke: var(--royal-400);
+    stroke-dasharray: 3 6;
+    opacity: 0.9;
+  }
+</style>

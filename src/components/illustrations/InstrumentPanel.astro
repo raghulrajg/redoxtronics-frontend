@@ -1,0 +1,207 @@
+---
+/**
+ * Hero visual: an electrochemical workstation screen recording a cyclic
+ * voltammogram. The curve is computed at build time; a glowing trace runs
+ * around it with SMIL (paused off-screen and for reduced motion).
+ */
+import { cyclicVoltammogram, cvPath, peaks, scaler, type PlotBox } from '@/lib/voltammogram';
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+
+const W = 560;
+const H = 470;
+const box: PlotBox = { x0: 64, x1: 530, y0: 80, y1: 316, eMin: -0.25, eMax: 0.65, iMin: -40, iMax: 40 };
+const { x, y } = scaler(box);
+const points = cyclicVoltammogram();
+const d = cvPath(points, box);
+const pk = peaks(points);
+
+const minus = (v: number) => (v < 0 ? `−${Math.abs(v).toFixed(1)}` : v.toFixed(1));
+const eMajor = [-0.2, 0, 0.2, 0.4, 0.6];
+const eMinor = [-0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6];
+const iMajor = [-40, -20, 0, 20, 40];
+const iMinor = [-30, -10, 10, 30];
+
+const tiles = [
+  { label: 'SCAN RATE', value: '50 mV/s' },
+  { label: 'PEAK SEPARATION', value: `${pk.deltaMv} mV` },
+  { label: 'ELECTRODES', value: 'WE · RE · CE' },
+];
+const dur = '6.5s';
+---
+
+<svg
+  class:list={['ill ip', className]}
+  viewBox={`0 0 ${W} ${H}`}
+  role="img"
+  aria-labelledby="ip-title ip-desc"
+  data-cv-panel
+>
+  <title id="ip-title">Electrochemical workstation recording a cyclic voltammogram</title>
+  <desc id="ip-desc">
+    A live plot of current against potential tracing the typical duck-shaped curve of a reversible redox
+    reaction, with anodic and cathodic peaks marked.
+  </desc>
+  <defs>
+    <linearGradient id="ip-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10235a"></stop>
+      <stop offset="1" stop-color="#081436"></stop>
+    </linearGradient>
+    <radialGradient id="ip-glow" cx="0.9" cy="0" r="0.75">
+      <stop offset="0" stop-color="#4169e1" stop-opacity="0.38"></stop>
+      <stop offset="1" stop-color="#4169e1" stop-opacity="0"></stop>
+    </radialGradient>
+    <filter id="ip-blur" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3.5"></feGaussianBlur>
+    </filter>
+  </defs>
+
+  <!-- Panel -->
+  <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx="18" fill="url(#ip-bg)"></rect>
+  <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx="18" fill="url(#ip-glow)"></rect>
+  <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx="18" fill="none" stroke="rgb(152 175 246 / 0.28)"></rect>
+
+  <!-- Title bar -->
+  <text x="22" y="30" class="ill__label ill__label--strong">CV-01 · CYCLIC VOLTAMMETRY</text>
+  <circle cx="497" cy="26" r="4" fill="#34d399">
+    <animate attributeName="opacity" values="1;0.35;1" dur="2.4s" repeatCount="indefinite"></animate>
+  </circle>
+  <circle cx="497" cy="26" r="8" fill="#34d399" opacity="0.18"></circle>
+  <text x="538" y="30" text-anchor="end" class="ill__label ill__label--strong">LIVE</text>
+  <line x1="0" y1="48" x2={W} y2="48" stroke="rgb(255 255 255 / 0.08)"></line>
+
+  <!-- Grid -->
+  <g stroke="rgb(255 255 255 / 0.05)">
+    {eMinor.map((e) => <line x1={x(e)} y1={box.y0} x2={x(e)} y2={box.y1} />)}
+    {iMinor.map((i) => <line x1={box.x0} y1={y(i)} x2={box.x1} y2={y(i)} />)}
+  </g>
+  <g stroke="rgb(255 255 255 / 0.09)">
+    {iMajor.map((i) => <line x1={box.x0} y1={y(i)} x2={box.x1} y2={y(i)} />)}
+  </g>
+  <rect
+    x={box.x0}
+    y={box.y0}
+    width={box.x1 - box.x0}
+    height={box.y1 - box.y0}
+    fill="none"
+    stroke="rgb(255 255 255 / 0.14)"></rect>
+  <line
+    x1={box.x0}
+    y1={y(0)}
+    x2={box.x1}
+    y2={y(0)}
+    stroke="rgb(159 176 216 / 0.45)"
+    stroke-dasharray="4 5"></line>
+
+  <!-- Axis labels -->
+  {
+    eMajor.map((e) => (
+      <text x={x(e)} y={box.y1 + 18} text-anchor="middle" class="ill__label">
+        {minus(e)}
+      </text>
+    ))
+  }
+  {
+    iMajor.map((i) => (
+      <text x={box.x0 - 10} y={y(i) + 3.5} text-anchor="end" class="ill__label">
+        {i < 0 ? `−${Math.abs(i)}` : i}
+      </text>
+    ))
+  }
+  <text x={box.x0} y="70" class="ill__label ill__label--accent">I / µA</text>
+  <text x={box.x1} y={box.y1 + 38} text-anchor="end" class="ill__label ill__label--accent">E / V vs Ag/AgCl</text>
+
+  <!-- Peak markers -->
+  <g class="ip__peaks">
+    <line
+      x1={x(pk.anodic.e)}
+      y1={y(pk.anodic.i)}
+      x2={x(pk.anodic.e)}
+      y2={box.y1}
+      stroke="rgb(152 175 246 / 0.4)"
+      stroke-dasharray="2 4"></line>
+    <line
+      x1={x(pk.cathodic.e)}
+      y1={y(pk.cathodic.i)}
+      x2={x(pk.cathodic.e)}
+      y2={box.y1}
+      stroke="rgb(152 175 246 / 0.4)"
+      stroke-dasharray="2 4"></line>
+    <circle cx={x(pk.anodic.e)} cy={y(pk.anodic.i)} r="4" fill="#081436" stroke="#98aff6" stroke-width="1.5"></circle>
+    <circle cx={x(pk.cathodic.e)} cy={y(pk.cathodic.i)} r="4" fill="#081436" stroke="#98aff6" stroke-width="1.5"></circle>
+    <text x={x(pk.anodic.e) + 10} y={y(pk.anodic.i) - 8} class="ill__label ill__label--strong">Epa</text>
+    <text x={x(pk.cathodic.e) - 10} y={y(pk.cathodic.i) + 18} text-anchor="end" class="ill__label ill__label--strong">
+      Epc
+    </text>
+  </g>
+
+  <!-- Curve -->
+  <path d={d} fill="rgb(65 105 225 / 0.1)" stroke="rgb(106 138 239 / 0.6)" stroke-width="2" stroke-linejoin="round"></path>
+  <path
+    d={d}
+    pathLength="1"
+    fill="none"
+    stroke="#6f95ff"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-dasharray="0.2 0.8"
+    stroke-dashoffset="0.2"
+    filter="url(#ip-blur)"
+    opacity="0.85"
+  >
+    <animate attributeName="stroke-dashoffset" from="0.2" to="-0.8" dur={dur} repeatCount="indefinite"></animate>
+  </path>
+  <path
+    d={d}
+    pathLength="1"
+    fill="none"
+    stroke="#c9d8ff"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-dasharray="0.2 0.8"
+    stroke-dashoffset="0.2"
+  >
+    <animate attributeName="stroke-dashoffset" from="0.2" to="-0.8" dur={dur} repeatCount="indefinite"></animate>
+  </path>
+  <g>
+    <circle r="11" fill="#5ad1ff" opacity="0.22"></circle>
+    <circle r="4.5" fill="#fff" stroke="#5ad1ff" stroke-width="2"></circle>
+    <animateMotion dur={dur} repeatCount="indefinite" path={d}></animateMotion>
+  </g>
+
+  <!-- Readouts -->
+  {
+    tiles.map((t, k) => {
+      const tx = 22 + k * 176;
+      return (
+        <g>
+          <rect x={tx} y="374" width="164" height="74" rx="12" fill="rgb(255 255 255 / 0.035)" stroke="rgb(255 255 255 / 0.09)" />
+          <text x={tx + 14} y="398" class="ill__label ill__label--dim">
+            {t.label}
+          </text>
+          <text x={tx + 14} y="430" class="ip__value">
+            {t.value}
+          </text>
+        </g>
+      );
+    })
+  }
+</svg>
+
+<style>
+  .ip {
+    border-radius: var(--radius-l);
+  }
+
+  .ip__value {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    fill: #eef2ff;
+  }
+</style>

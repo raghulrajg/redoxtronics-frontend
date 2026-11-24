@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/home/Hero.astro';
+import FocusAreas from '@/components/home/FocusAreas.astro';
+import ProductsPreview from '@/components/home/ProductsPreview.astro';
+import SoftwareBand from '@/components/home/SoftwareBand.astro';
+import Applications from '@/components/home/Applications.astro';
+import CtaBand from '@/components/ui/CtaBand.astro';
+import { site } from '@/config';
+import { href } from '@/lib/url';
+
+// Tells search engines the site's name for the line above search results.
+const siteRoot = new URL(href('/'), Astro.site).toString();
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteRoot}#website`,
+  name: site.name,
+  alternateName: ['redoxtronics.com'],
+  url: siteRoot,
+  inLanguage: 'en-IN',
+  publisher: { '@id': `${siteRoot}#organization` },
+};
+---
+
+<BaseLayout
+  title={`${site.name} · Electrochemical Workstations, Gas Sensors & Embedded Systems`}
+  rawTitle
+  description="Redoxtronics is an R&D company specialising in electrochemical workstations, gas sensors and embedded systems. Portable electrochemical workstations, gas sensor detectors and instrument software."
+  schema={[websiteSchema]}
+>
+  <Hero />
+  <FocusAreas />
+  <ProductsPreview />
+  <SoftwareBand />
+  <Applications />
+  <CtaBand />
+</BaseLayout>
