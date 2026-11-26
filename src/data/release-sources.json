@@ -1,0 +1,6 @@
+{
+  "gas-sensor-monitor": {
+    "repo": "raghulrajg/Gas-Sensor-Monitor",
+    "assets": "\\.(zip|exe|msi)$"
+  }
+}

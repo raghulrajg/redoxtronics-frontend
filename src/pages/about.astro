@@ -7,14 +7,20 @@ import Icon from '@/components/ui/Icon.astro';
 import { site, addressLines, mapsUrl, phoneHref } from '@/config';
 import { approach, values, focusAreas } from '@/data/content';
 import { products } from '@/data/products';
+import { software, isAvailable } from '@/data/software';
 import { breadcrumbSchema } from '@/lib/schema';
 import { href } from '@/lib/url';
+
+const readySoftware = software.filter(isAvailable).map((s) => s.name);
+const softwareFact = readySoftware.length
+  ? `${readySoftware.join(' · ')} (available to download)${readySoftware.length < software.length ? ' · more coming soon' : ''}`
+  : 'Instrument software (downloads coming soon)';
 
 const facts = [
   { label: 'Sector', value: 'Research & development' },
   { label: 'Focus', value: focusAreas.map((f) => f.title).join(' · ') },
   { label: 'Products', value: products.map((p) => p.name).join(' · ') },
-  { label: 'Software', value: 'Instrument software (downloads coming soon)' },
+  { label: 'Software', value: softwareFact },
   { label: 'Based in', value: `${site.address.city}, ${site.address.region}, ${site.address.country}` },
   { label: 'Contact', value: site.email },
 ];
@@ -85,8 +91,8 @@ const schema = [
           electronics, embedded firmware and the software that turns signals into results. Our current
           products are a <a href={href('/products/#portable-electrochemical-workstation')}>portable
           electrochemical workstation</a> and <a href={href('/products/#gas-sensor-detectors')}>gas sensor
-          detectors</a>, each developed in two versions, with <a href={href('/software/')}>dedicated
-          software</a> to follow.
+          detectors</a>, each developed in two versions, along with <a href={href('/software/')}>dedicated
+          software</a>.
         </p>
       </div>
     </div>

@@ -7,8 +7,11 @@ import WorkstationArt from '@/components/illustrations/WorkstationArt.astro';
 import GasDetectorArt from '@/components/illustrations/GasDetectorArt.astro';
 import { site } from '@/config';
 import { products, isComingSoon } from '@/data/products';
+import { software, isAvailable } from '@/data/software';
 import { breadcrumbSchema } from '@/lib/schema';
 import { href, mailto } from '@/lib/url';
+
+const readySoftware = software.filter(isAvailable).map((s) => s.name);
 
 const schema = [
   breadcrumbSchema(Astro.site, [{ label: 'Products', href: '/products/' }]),
@@ -196,7 +199,13 @@ const schema = [
         </span>
         <div class="sw-note__copy">
           <h2 id="sw-note-title" class="h4">Looking for the software?</h2>
-          <p class="muted">Software for our instruments will be available from the software downloads page.</p>
+          <p class="muted">
+            {
+              readySoftware.length
+                ? `Download the latest ${readySoftware.join(' and ')} from the software downloads page.`
+                : 'Software for our instruments will be available from the software downloads page.'
+            }
+          </p>
         </div>
         <a class="btn btn--secondary" href={href('/software/')}>
           Software downloads

@@ -57,7 +57,7 @@ Optional but recommended: verify the domain under your GitHub **profile Settings
 | --- | --- |
 | Company name, email, phone, registered address, social links | `src/config.ts` |
 | Products and their versions (specifications, photos, datasheets) | `src/data/products.ts` |
-| Software downloads | `src/data/software.ts` |
+| Software downloads (and which repositories provide automatic releases) | `src/data/software.ts`, `src/data/release-sources.json` |
 | Focus areas, applications, "how we work" steps, values | `src/data/content.ts` |
 | Page text and section order | `src/pages/*.astro` and `src/components/home/*.astro` |
 | Colours, fonts, spacing (royal-blue design tokens are at the top) | `src/styles/global.css` |
@@ -84,15 +84,11 @@ Each product has two versions in `src/data/products.ts`. While a version is empt
 
 (The values above are only examples.)
 
-### Publish a software download
+### Software downloads
 
-Each entry in `src/data/software.ts` shows **"Coming soon"** with a disabled button until you add a download link:
-
-1. Upload the installer:
-   - **Recommended:** create a **GitHub Release** (repository → **Releases → Draft a new release**), attach the installer and copy its download link. Releases accept large files.
-   - Small files (under 25 MB) can also go in `public/downloads/`. They are then available at `/downloads/<file name>`.
-2. In `src/data/software.ts`, fill in `url`, `version`, `platform`, `size` and `released`.
-3. Commit. The download button switches on automatically.
+- **Automatic (Gas Sensor Monitor):** on every deploy, and every 6 hours, the website downloads the newest release from the private repository **raghulrajg/Gas-Sensor-Monitor** and offers it on the Software page with its version, date and size. This needs the `RELEASES_TOKEN` secret. See **[Build guide → 7. Software downloads](BUILD_GUIDE.md#7-software-downloads-automatic)** for the one-time setup.
+- **Manual:** for other software, fill in `url`, `version`, `size` and `released` in `src/data/software.ts`. The link can point to a public download or to a small file (under 25 MB) in `public/downloads/`.
+- Entries with no download show **"Coming soon"** with a disabled button.
 
 ---
 
@@ -115,7 +111,7 @@ The key is not stored in the code. (A static site's form sends the key from the 
 
 - [ ] **Review the text.** The company profile, focus areas, applications and "how we work" steps were written from a short brief. Check that they describe your work accurately.
 - [ ] **Product versions.** Both products currently list two versions (Version 1 and Version 2) as placeholders. Rename or remove versions in `src/data/products.ts` to match your real line-up.
-- [ ] **Software list.** Two software entries (workstation and gas detector) are placeholders. Edit or remove them in `src/data/software.ts`.
+- [ ] **Software list.** The Gas Sensor Monitor download is live (automatic from its releases). The Electrochemical Workstation Software entry is still a placeholder: edit or remove it in `src/data/software.ts`.
 - [ ] **Social links.** Add LinkedIn or YouTube URLs in `src/config.ts` (empty values are hidden).
 
 ---

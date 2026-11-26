@@ -21,3 +21,7 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# software releases downloaded at build time (scripts/fetch-releases.mjs)
+public/releases/
+src/data/releases.generated.json

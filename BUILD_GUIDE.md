@@ -93,13 +93,69 @@ To use **redoxtronics.com** instead of the github.io address, follow **"Use your
 
 ---
 
-## 7. Common edits
+## 7. Software downloads (automatic)
+
+The Software page offers the newest **Gas Sensor Monitor** release from the private repository **raghulrajg/Gas-Sensor-Monitor**. On every deploy, the website downloads the newest release's zip file, publishes it at `/releases/gas-sensor-monitor/<file>.zip` and shows its version, date and size. The source code stays private; only the zip becomes public. Release notes are not published.
+
+### One-time setup: give the website a read-only token
+
+1. Sign in to GitHub as **raghulrajg** and open **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. Fill in:
+   - **Token name:** `redoxtronics website - releases`
+   - **Expiration:** 1 year. Set a reminder to renew it.
+   - **Repository access:** **Only select repositories** → **Gas-Sensor-Monitor**
+   - **Permissions → Repository permissions → Contents:** **Read-only**
+3. Click **Generate token** and copy it. GitHub shows it only once.
+4. Open **redoxtronics-frontend → Settings → Secrets and variables → Actions → New repository secret**. Name: `RELEASES_TOKEN`. Secret: paste the token. Click **Add secret**.
+5. Go to **Actions → Deploy to GitHub Pages → Run workflow**. When it shows a green tick, the Software page offers the download.
+
+### When a new version is released
+
+Every push to `main` in Gas-Sensor-Monitor builds a new release (`build-<number>`). The website picks it up:
+
+- **automatically within 6 hours** (a scheduled check), or
+- **right away:** in redoxtronics-frontend, go to **Actions → Deploy to GitHub Pages → Run workflow**.
+
+**Optional: update the website the moment a release is built.**
+
+1. Create a second fine-grained token with **Repository access:** only **redoxtronics-frontend**, and **Contents:** **Read and write**.
+2. Save it in **Gas-Sensor-Monitor → Settings → Secrets and variables → Actions** as `WEBSITE_TOKEN`.
+3. Add this step at the end of `Gas-Sensor-Monitor/.github/workflows/build.yml`, below **Publish release**:
+
+```yaml
+      - name: Update the website download
+        if: github.ref_name == github.event.repository.default_branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.WEBSITE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "No WEBSITE_TOKEN: the website updates within 6 hours."; exit 0; fi
+          gh api repos/raghulrajg/redoxtronics-frontend/dispatches -f event_type=software-release
+```
+
+### Good to know
+
+- **Token expiry:** when `RELEASES_TOKEN` expires, deploys stop with a red ❌ at **Fetch the latest software releases**, and the live site keeps its last good version. Create a new token (steps 1–4 above) and run the workflow again.
+- **Scheduled checks pause after 60 days without changes** to this repository. GitHub then shows a banner in the **Actions** tab with a button to turn them back on.
+- **More software:** add an entry to `src/data/release-sources.json` with the software's `id` from `src/data/software.ts` and its repository name. Then give the token access to that repository too.
+- **See the download on your own PC:** in PowerShell, set the token and fetch the release before starting the site:
+
+  ```powershell
+  $env:RELEASES_TOKEN = "paste-your-token-here"
+  npm run releases
+  npm run dev
+  ```
+
+---
+
+## 8. Common edits
 
 | To change… | Edit this file |
 | --- | --- |
 | Email, phone, address | `src/config.ts` |
 | Product details (versions, specifications, photos, datasheets) | `src/data/products.ts` |
-| Software downloads | `src/data/software.ts` |
+| Software downloads (names, descriptions) | `src/data/software.ts` |
+| Which GitHub repositories provide automatic downloads | `src/data/release-sources.json` |
 | Page text | `src/data/content.ts` and `src/pages/*.astro` |
 | Colours | `src/styles/global.css` |
 | Logo | `public/brand/` (see below) |
@@ -122,7 +178,7 @@ npm run assets
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Problem | Fix |
 | --- | --- |
@@ -131,4 +187,6 @@ npm run assets
 | `npm install` warns about an unsupported Node version | Install the latest **LTS** Node.js from nodejs.org. Version 22.23 or newer is needed. |
 | Port 4321 is already in use | `npm run dev -- --port 4322`, then open http://localhost:4322 |
 | The site didn't update after `git push` | GitHub → **Actions** → open the latest run. A red ❌ shows which step failed. Fix the error, then commit and push again. |
+| The Software page shows "Coming soon" for Gas Sensor Monitor | The `RELEASES_TOKEN` secret is missing, expired or can't read Gas-Sensor-Monitor. Create a new token (section 7), update the secret and run the workflow. |
+| Deploy fails at **Fetch the latest software releases** | Same cause: renew `RELEASES_TOKEN` (section 7). The live site keeps its last good version meanwhile. |
 | The live site shows *404 / There isn't a GitHub Pages site here* | Check **Settings → Pages → Source** is **GitHub Actions**, then re-run the workflow (**Actions → Deploy to GitHub Pages → Run workflow**). |
