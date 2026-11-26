@@ -1,11 +1,19 @@
-# Builds the site and publishes it to GitHub Pages on every push to main.
+# Builds the site and publishes it to GitHub Pages.
 # One-time setup: repository Settings → Pages → Build and deployment → Source: "GitHub Actions".
+#
+# Runs on every push to main, on demand (Actions → Run workflow), every 6 hours
+# to pick up new software releases, and when another repository sends a
+# "software-release" event (see BUILD_GUIDE.md → Software downloads).
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '23 */6 * * *'
+  repository_dispatch:
+    types: [software-release]
 
 permissions:
   contents: read
@@ -35,6 +43,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Fetch the latest software releases
+        run: |
+          if [ -z "$RELEASES_TOKEN" ]; then
+            echo "::notice::No RELEASES_TOKEN secret found, so private software releases can't be downloaded (see BUILD_GUIDE.md)."
+          fi
+          npm run releases
+        env:
+          # Fine-grained token with read-only "Contents" access to the software repositories.
+          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
 
       - name: Type-check
         run: npm run check

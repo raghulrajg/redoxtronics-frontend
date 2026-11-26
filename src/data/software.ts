@@ -1,39 +1,48 @@
 /**
  * ─────────────────────────────────────────────────────────────
- *  SOFTWARE DOWNLOADS — edit this file to publish a download.
+ *  SOFTWARE DOWNLOADS
  *
- *  While `url` is empty, the entry shows "Coming soon" and the
- *  download button is disabled. To publish a release:
+ *  Each entry is published in one of two ways:
  *
- *   1. Attach the installer to a GitHub Release (recommended, any size),
- *      or put a small file (under 25 MB) in public/downloads/,
- *      e.g. public/downloads/workstation-software-1.0.0-setup.exe.
- *   2. Fill in `url` (e.g. '/downloads/workstation-software-1.0.0-setup.exe'
- *      or the GitHub Release link), `version`, `platform`, `size` and
- *      `released`.
- *   3. Commit and push; the site redeploys automatically.
+ *  A. AUTOMATICALLY from a GitHub repository's Releases (recommended).
+ *     Add the entry's `id` to src/data/release-sources.json with the
+ *     repository name. On every deploy the website downloads the newest
+ *     release's file and shows its version, date and size here.
+ *     (The Gas Sensor Monitor works this way.)
+ *
+ *  B. MANUALLY: fill in `url` (a full link, or a file you put in
+ *     public/downloads/), plus `version`, `size` and `released`.
+ *
+ *  An entry with neither shows "Coming soon" with a disabled button.
  * ─────────────────────────────────────────────────────────────
  */
 import type { IconName } from '@/lib/icons';
+import { latestReleases, type LatestRelease } from '@/data/releases';
 
 export interface SoftwareItem {
+  /** Also the key in release-sources.json for automatic releases. */
   id: string;
   name: string;
   description: string;
   /** The product this software works with. */
   product: string;
   icon: IconName;
-  /** Download link: a path inside /public or a full URL. Empty = coming soon. */
+  /** Manual download link: a path inside /public or a full URL. */
   url: string;
+  /** Manual version, e.g. '1.0.0' (automatic releases fill this in). */
   version: string;
   /** e.g. 'Windows 10/11 (64-bit)' */
   platform: string;
-  /** e.g. '48 MB' */
+  /** Manual size, e.g. '48 MB' (automatic releases fill this in). */
   size: string;
-  /** e.g. 'March 2027' */
+  /** Manual release date, e.g. 'March 2027' (automatic releases fill this in). */
   released: string;
   /** Optional link to release notes or a user manual. */
   notes?: string;
+  /** Short feature list. */
+  features?: string[];
+  /** How to install, shown under the download button. */
+  install?: string;
 }
 
 export const software: SoftwareItem[] = [
@@ -51,18 +60,47 @@ export const software: SoftwareItem[] = [
     released: '',
   },
   {
-    id: 'gas-detector-software',
-    name: 'Gas Sensor Detector Software',
+    // Published automatically from github.com/raghulrajg/Gas-Sensor-Monitor (see release-sources.json).
+    id: 'gas-sensor-monitor',
+    name: 'Gas Sensor Monitor',
     description:
-      'Software for Redoxtronics gas sensor detectors: view readings, review recorded data and manage your detectors.',
+      'Desktop app for Redoxtronics gas sensor detectors. Connect the detector over USB to watch live readings, calibrate its sensors and record your measurements.',
     product: 'Gas Sensor Detectors',
     icon: 'wind',
     url: '',
     version: '',
-    platform: '',
+    platform: 'Windows 10/11 (64-bit)',
     size: '',
     released: '',
+    features: [
+      'Live graphs for 7 gas sensors, temperature and humidity',
+      'Calibrate each sensor from the app',
+      'Record measurements straight to Excel',
+      'Save and reload calibration profiles',
+    ],
+    install: 'Extract the zip file, then run “E-Nose Monitor.exe” from the extracted folder.',
   },
 ];
 
-export const isAvailable = (s: SoftwareItem) => s.url.trim().length > 0;
+export interface DownloadFile {
+  /** Path inside the site (pass through href()) or a full URL. */
+  href: string;
+  name: string;
+  /** Bytes, when known. */
+  bytes?: number;
+}
+
+/** The latest automatic release for an entry, if the build fetched one. */
+export const releaseFor = (s: SoftwareItem): LatestRelease | undefined => latestReleases[s.id];
+
+/** The files to offer for an entry: from its latest release, or its manual `url`. */
+export function downloadsFor(s: SoftwareItem): DownloadFile[] {
+  const release = releaseFor(s);
+  if (release?.assets.length) {
+    return release.assets.map((a) => ({ href: a.path, name: a.name, bytes: a.size }));
+  }
+  const url = s.url.trim();
+  return url ? [{ href: url, name: decodeURIComponent(url.split('/').pop() ?? url) }] : [];
+}
+
+export const isAvailable = (s: SoftwareItem) => downloadsFor(s).length > 0;

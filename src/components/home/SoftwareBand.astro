@@ -2,6 +2,8 @@
 import Icon from '@/components/ui/Icon.astro';
 import SoftwareArt from '@/components/illustrations/SoftwareArt.astro';
 import { site } from '@/config';
+import { software, isAvailable, releaseFor } from '@/data/software';
+import { versionLabel } from '@/data/releases';
 import { href, mailto } from '@/lib/url';
 
 interface Props {
@@ -9,31 +11,52 @@ interface Props {
 }
 const { index = '03' } = Astro.props;
 
-const features = [
+// Once a download is published, this section says so automatically.
+const ready = software.find(isAvailable);
+const release = ready ? releaseFor(ready) : undefined;
+const features = ready?.features?.slice(0, 3) ?? [
   'Set up and run measurements',
   'Watch results as they are recorded',
   'Export your data for analysis',
 ];
+const comingSoon = software.filter((s) => !isAvailable(s)).map((s) => s.name);
 ---
 
 <section class="section theme-light sb" aria-labelledby="software-title">
   <div class="container sb__layout">
     <div class="sb__copy">
       <p class="eyebrow" data-reveal><span class="num">{index}</span> Software</p>
-      <h2 id="software-title" class="h2" data-reveal style="--reveal-delay: 60ms">
-        Software for our instruments, <span class="grad">coming soon.</span>
-      </h2>
-      <p class="lead" data-reveal style="--reveal-delay: 120ms">
-        We also develop the software that runs our instruments. Installers will be published in the
-        software downloads section as soon as they are released.
-      </p>
+      {
+        ready ? (
+          <>
+            <h2 id="software-title" class="h2" data-reveal style="--reveal-delay: 60ms">
+              Software for our instruments, <span class="grad">ready to download.</span>
+            </h2>
+            <p class="lead" data-reveal style="--reveal-delay: 120ms">
+              Download the latest <strong>{ready.name}</strong>
+              {ready.platform ? ` for ${ready.platform.split(' ')[0]}` : ''}. New versions appear here
+              automatically.{comingSoon.length > 0 && ` ${comingSoon.join(' and ')}: coming soon.`}
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 id="software-title" class="h2" data-reveal style="--reveal-delay: 60ms">
+              Software for our instruments, <span class="grad">coming soon.</span>
+            </h2>
+            <p class="lead" data-reveal style="--reveal-delay: 120ms">
+              We also develop the software that runs our instruments. Installers will be published in the
+              software downloads section as soon as they are released.
+            </p>
+          </>
+        )
+      }
       <ul role="list" class="check-list sb__list" data-reveal style="--reveal-delay: 160ms">
         {features.map((f) => <li>{f}</li>)}
       </ul>
       <div class="btn-row" data-reveal style="--reveal-delay: 200ms">
-        <a class="btn btn--primary" href={href('/software/')}>
+        <a class="btn btn--primary" href={href(ready ? `/software/#${ready.id}` : '/software/')}>
           <Icon name="download" strokeWidth={2} />
-          Software downloads
+          {ready ? `Download ${ready.name}` : 'Software downloads'}
         </a>
         <a class="btn btn--secondary" href={mailto(site.email, 'Notify me about Redoxtronics software downloads')}>
           <Icon name="bell" strokeWidth={2} />
@@ -43,10 +66,20 @@ const features = [
     </div>
     <div class="sb__visual" data-reveal style="--reveal-delay: 120ms">
       <SoftwareArt />
-      <span class="badge badge--soon sb__badge">
-        <Icon name="clock" strokeWidth={2} />
-        Downloads coming soon
-      </span>
+      {
+        ready ? (
+          <span class="badge badge--ok sb__badge sb__badge--ok">
+            <Icon name="check" strokeWidth={2.5} />
+            {ready.name}
+            {release ? ` · ${versionLabel(release.tag)}` : ''} available
+          </span>
+        ) : (
+          <span class="badge badge--soon sb__badge">
+            <Icon name="clock" strokeWidth={2} />
+            Downloads coming soon
+          </span>
+        )
+      }
     </div>
   </div>
 </section>
@@ -88,6 +121,15 @@ const features = [
     right: 20px;
     background: #fff8e6;
     box-shadow: 0 10px 24px -12px rgb(180 83 9 / 0.45);
+  }
+
+  .sb__badge--ok {
+    background: #ecfdf5;
+    box-shadow: 0 10px 24px -12px rgb(4 120 87 / 0.45);
+  }
+
+  .sb__copy .lead strong {
+    color: var(--fg);
   }
 
   @media (max-width: 960px) {
